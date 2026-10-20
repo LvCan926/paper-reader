@@ -1,0 +1,98 @@
+{
+  "title": "论文阅读卡片工具：教学演示",
+  "subtitle": "从原文材料到可核对、可编辑的中文速查图",
+  "source_label": "DEMO / 不对应真实论文",
+  "pages": [
+    {
+      "title": "先读懂：问题、贡献与全貌",
+      "eyebrow": "01 / OVERVIEW",
+      "columns": 2,
+      "sections": [
+        {"title": "研究问题：到底想解决什么？", "tone": "red", "items": [
+          {"text": "用一两句话解释已有方法遇到的具体困难，保留关键前提。实际处理论文时，这里的每条陈述都需要原文摘录和页码。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "说明这个问题为什么影响性能、成本或使用体验。把作者的陈述与自己的判断分开标记。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "核心贡献：作者改变了哪一步？", "tone": "blue", "items": [
+          {"text": "提炼一项最关键的机制，再列出支撑它的设计。使用“输入 → 处理 → 输出”的句式，减少术语堆积。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "保留核心术语英文，便于回到论文、代码仓库或其他文献中继续检索。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "方法总览：原图搭配中文讲解", "tone": "green", "items": [
+          {"text": "优先从论文 PDF 裁剪方法图，这样能保留矢量绘制的箭头、文字和完整结构。不要只提取 PDF 内嵌位图。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "在图下说明数据如何流动、模块如何连接，以及训练和推理的区别。这里可以添加 image 字段放入原图。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "推荐阅读顺序", "tone": "gold", "items": [
+          {"text": "先读第一页建立全貌；再看第二页的方法机制；第三页核对实验；第四页判断适用条件和局限。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "卡片用于辅助阅读。遇到关键数字、强结论或难懂公式时，沿着页码回到原文。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]}
+      ]
+    },
+    {
+      "title": "拆方法：步骤、公式与符号",
+      "eyebrow": "02 / METHOD",
+      "columns": 2,
+      "sections": [
+        {"title": "步骤一：明确输入与输出", "tone": "blue", "items": [
+          {"text": "输入可以是查询、上下文、图像或环境状态。输出可能是答案、动作、排序结果或新的记忆状态。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "这一模块应回答：模型在什么信息可见的条件下，执行哪一种任务？", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "步骤二：找到真正起作用的机制", "tone": "green", "items": [
+          {"text": "把一个完整过程拆成三到五步，解释每步改变了什么变量，以及为什么需要这一步。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "区分模型训练阶段与推理阶段：哪些组件需要学习，哪些只在使用时运行？", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "关键公式：保留结构，解释意义", "tone": "gold", "formula": "\\mathcal{L}(\\theta)=-\\sum_{t=1}^{T}\\log p_\\theta(y_t\\mid x,y_{<t})", "items": [
+          {"text": "上面只是排版演示公式，不是任何目标论文的方法。实际使用时，公式必须从原文核对。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "解释每个符号、优化目标和适用条件；PDF 提取导致公式损坏时，可以直接裁剪原公式区域。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "机制与适用条件", "tone": "red", "items": [
+          {"text": "概述正文支持的输入、机制与输出；存在运行例子时结合原文解释，不添加读后自测。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "不要为了“讲得通”填补论文未说明的实现细节。对于无法确认的部分，直接标为待确认。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]}
+      ]
+    },
+    {
+      "title": "看证据：实验设定与结果",
+      "eyebrow": "03 / EVIDENCE",
+      "columns": 2,
+      "sections": [
+        {"title": "比较结果之前，先对齐条件", "tone": "blue", "table": {"headers": ["需要核对", "原因"], "rows": [["模型与规模", "影响能力上限"], ["数据集与划分", "影响任务难度"], ["推理预算与工具", "影响成本及公平性"], ["指标与单位", "决定数字的含义"]]}, "items": [
+          {"text": "这是教学核对表，不含真实实验结果。处理论文时，要为每项条件补充能够定位的原文依据。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "主要结果：一个数字需要完整上下文", "tone": "green", "items": [
+          {"text": "写明在哪个数据集、哪种模型和预算下，哪项指标相对哪个基线发生了怎样的变化。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "从 40% 到 50% 是提高 10 个百分点，相对提高 25%。两种说法不能混用。此处为算术示例。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "消融实验：哪个部件带来收益？", "tone": "gold", "items": [
+          {"text": "观察去掉某个模块后结果如何变化，同时确认其他条件是否保持一致。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "记录反例、负结果与性能下降的任务。卡片应帮助理解机制，而不是只保留最好看的数字。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "结论能支持到什么程度？", "tone": "red", "items": [
+          {"text": "区分相关性、受控实验支持的解释，以及作者尚未验证的猜测。模型生成的解释使用“解读”标签。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "程序能检查摘录是否确实出现在所标页面，但不能自动保证摘录支持中文结论。最后这一步需要阅读核对。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]}
+      ]
+    },
+    {
+      "title": "带着判断离开：边界与延伸",
+      "eyebrow": "04 / TAKEAWAYS",
+      "columns": 2,
+      "sections": [
+        {"title": "适用条件与局限", "tone": "red", "items": [
+          {"text": "把论文明确指出的局限与读者自己的担忧分开呈现。若原文没有讨论某项条件，说明信息缺失。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "检查计算开销、数据需求、泛化能力、评估覆盖范围和失败案例。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "术语表：让后续阅读更轻松", "tone": "blue", "items": [
+          {"text": "Baseline（基线）：实验中的参照方法。Ablation（消融）：通过移除或替换组件考察其作用。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "术语解释也应结合论文语境；一个词在不同领域可能有不同的具体含义。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "复现之前，先确认这些信息", "tone": "green", "items": [
+          {"text": "代码与模型是否公开？依赖、数据、训练预算、超参数、随机种子和评估脚本是否齐全？", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "没有出现在论文材料里的仓库地址与模型名称，不要让模型自行猜测。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]},
+        {"title": "导出与继续编辑", "tone": "gold", "items": [
+          {"text": "工具输出四张高清 PNG、一份 PDF 和可离线打开的 HTML。修改 cards.json 后，可以重复渲染而不再次调用模型。", "kind": "unknown", "source_pages": [], "quote": ""},
+          {"text": "当前是横版速查模板，适合电脑或放大阅读。未来可以共用同一份内容数据，增加手机竖版卡片。", "kind": "unknown", "source_pages": [], "quote": ""}
+        ]}
+      ]
+    }
+  ]
+}

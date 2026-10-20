@@ -1,0 +1,12 @@
+{
+  "content": "content.json",
+  "assets": "assets.json",
+  "source": "source.json",
+  "pdf": "../../work/arxiv-download-check/paper.pdf",
+  "output": "../../output/pdf/attention-is-all-you-need",
+  "filename": "attention-is-all-you-need.pdf",
+  "category": [
+    "模型基础",
+    "Transformer"
+  ]
+}

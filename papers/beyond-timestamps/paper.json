@@ -1,0 +1,12 @@
+{
+  "content": "content.json",
+  "assets": "assets.json",
+  "source": "source.json",
+  "pdf": "../../work/beyond-timestamps/paper.pdf",
+  "output": "../../output/pdf/beyond-timestamps",
+  "filename": "beyond-timestamps.pdf",
+  "category": [
+    "智能体",
+    "强化学习与蒸馏"
+  ]
+}

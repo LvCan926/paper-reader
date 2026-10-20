@@ -1,0 +1,62 @@
+[
+  {
+    "title": "Gaussian Error Linear Units (GELUs)",
+    "category": [
+      "模型基础",
+      "激活函数"
+    ],
+    "pages": 4,
+    "path": "模型基础/激活函数/gelu.pdf",
+    "sha256": "65d0aa973362b7977c76e0892ba34bf5b2fe81a2ed2a20bd3db37dea4ffb5a78",
+    "arxiv": "1606.08415v5",
+    "config": "../papers/gelu/paper.json"
+  },
+  {
+    "title": "Attention Is All You Need",
+    "category": [
+      "模型基础",
+      "Transformer"
+    ],
+    "pages": 4,
+    "path": "模型基础/Transformer/attention-is-all-you-need.pdf",
+    "sha256": "9ae148bb73556416e63d1ccdc05abb52c22c1dc82bad63d5f6b4f0ecfdcac2bf",
+    "arxiv": "1706.03762v7",
+    "config": "../papers/attention-is-all-you-need/paper.json"
+  },
+  {
+    "title": "Beyond Timestamps: Decision-Aligned On-Policy Distillation for Long-Horizon Agents",
+    "category": [
+      "智能体",
+      "强化学习与蒸馏"
+    ],
+    "pages": 4,
+    "path": "智能体/强化学习与蒸馏/beyond-timestamps.pdf",
+    "sha256": "f70db4346986b50fc5e5d8b97f546bc313ad598651ee239c1805772692aed6eb",
+    "arxiv": "2609.33391v1",
+    "config": "../papers/beyond-timestamps/paper.json"
+  },
+  {
+    "title": "HarnessForge: Joint Harness and Policy Evolution for Adaptive Agent Systems",
+    "category": [
+      "智能体",
+      "系统自适应"
+    ],
+    "pages": 5,
+    "path": "智能体/系统自适应/harnessforge.pdf",
+    "sha256": "237eee87b4ff5b7dd187abdf1ffd7bb9c29f1f74184d71b5e04f12fc2e741360",
+    "arxiv": "2606.01779v1",
+    "config": "../papers/harnessforge/paper.json"
+  },
+  {
+    "title": "RSIFlow: Adaptive Self-Improvement Workflows with an Evolving Meta-Agent",
+    "category": [
+      "智能体",
+      "自我改进"
+    ],
+    "pages": 5,
+    "path": "智能体/自我改进/rsiflow.pdf",
+    "sha256": "d142635bc9c9365b5080675c413b22caa64f14f97b625bea059d032a7df702f1",
+    "arxiv": "2610.21791v1",
+    "config": "../papers/rsiflow/paper.json"
+  }
+]

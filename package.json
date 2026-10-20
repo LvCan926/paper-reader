@@ -1,0 +1,25 @@
+{
+  "name": "paper-reading-cards",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "demo": "node src/cli.mjs demo",
+    "check": "node --check src/cli.mjs && node --check src/renderer.mjs && node --check src/editorial-renderer.mjs && node --check src/arxiv.mjs && node --check src/layout-planner.mjs && node --check src/workflow.mjs && node --check src/library.mjs",
+    "attention": "node src/cli.mjs build papers/attention-is-all-you-need/paper.json",
+    "test": "node --test tests/*.test.mjs",
+    "build": "node src/cli.mjs build",
+    "gelu": "node src/cli.mjs build papers/gelu/paper.json",
+    "library": "node src/cli.mjs library"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.11",
+    "katex": "^0.19.0",
+    "pdfjs-dist": "^6.4.299",
+    "playwright": "^1.56.0",
+    "tar": "^7.5.22"
+  }
+}

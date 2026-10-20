@@ -1,0 +1,112 @@
+{
+  "reviewed": true,
+  "source": "arXiv:2609.33391v1",
+  "coverage": "已核对正文全部 figure/table；分图保留原编号和必要图例。附录不纳入。",
+  "assets": [
+    {
+      "id": "fig-1",
+      "label": "Figure 1",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 2,
+      "box": [
+        0.176,
+        0.102,
+        0.824,
+        0.3
+      ],
+      "caption": "图 1：跨轨迹时间错位与多轮决策连续性。",
+      "include": true
+    },
+    {
+      "id": "fig-2",
+      "label": "Figure 2",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.176,
+        0.105,
+        0.824,
+        0.356
+      ],
+      "caption": "图 2：跨轨迹证据对齐、决策跨度与分层信用分配。",
+      "include": true
+    },
+    {
+      "id": "table-1",
+      "label": "Table 1",
+      "type": "table",
+      "scope": "body",
+      "source_page": 6,
+      "box": [
+        0.175,
+        0.161,
+        0.824,
+        0.43
+      ],
+      "caption": "表 1：所有方法、模型规模及子任务结果。* 表示评估时使用技能。",
+      "include": true
+    },
+    {
+      "id": "table-2",
+      "label": "Table 2",
+      "type": "table",
+      "scope": "body",
+      "source_page": 7,
+      "box": [
+        0.175,
+        0.149,
+        0.824,
+        0.294
+      ],
+      "caption": "表 2：四种消融的终点结果与训练曲线。",
+      "include": true
+    },
+    {
+      "id": "fig-3",
+      "label": "Figure 3",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 7,
+      "box": [
+        0.176,
+        0.314,
+        0.824,
+        0.658
+      ],
+      "caption": "图 3：top-K、相似度阈值和信用温度的敏感性。",
+      "include": true
+    },
+    {
+      "id": "fig-4ab",
+      "label": "Figure 4ab",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.176,
+        0.104,
+        0.817,
+        0.237
+      ],
+      "caption": "图 4(a–b)：对应匹配、置信度与分段。",
+      "include": true
+    },
+    {
+      "id": "fig-4cd",
+      "label": "Figure 4cd",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.176,
+        0.237,
+        0.817,
+        0.332
+      ],
+      "caption": "图 4(c–d)：跨度分布与修正前后证据。",
+      "include": true
+    }
+  ]
+}

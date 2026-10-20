@@ -1,0 +1,12 @@
+{
+  "content": "content.json",
+  "assets": "assets.json",
+  "source": "source.json",
+  "pdf": "../../work/rsiflow/paper.pdf",
+  "output": "../../output/pdf/rsiflow",
+  "filename": "rsiflow.pdf",
+  "category": [
+    "智能体",
+    "自我改进"
+  ]
+}

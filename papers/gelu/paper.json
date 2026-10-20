@@ -1,0 +1,12 @@
+{
+  "content": "content.json",
+  "assets": "assets.json",
+  "source": "source.json",
+  "pdf": "../../work/gelu/paper.pdf",
+  "output": "../../output/pdf/gelu",
+  "filename": "gelu.pdf",
+  "category": [
+    "模型基础",
+    "激活函数"
+  ]
+}

@@ -1,0 +1,362 @@
+{
+  "title": "中文论文阅读稿：六章结构教学演示",
+  "subtitle": "背景 → 相关工作 → 方法 → 实验 → 局限 → 未来展望；页数由内容决定",
+  "source_label": "教学示例 / 不对应真实论文",
+  "chapters": [
+    {
+      "id": "background",
+      "title": "背景：研究问题与动机",
+      "columns": 2,
+      "summary": {
+        "text": "本章用简洁中文回答：作者研究什么问题，为什么值得解决，现有办法在哪里遇到困难。",
+        "kind": "unknown",
+        "source_pages": [],
+        "quote": ""
+      },
+      "sections": [
+        {
+          "title": "研究问题：到底想解决什么？",
+          "tone": "red",
+          "items": [
+            {
+              "text": "用一两句话解释已有方法遇到的具体困难，保留关键前提。实际处理论文时，这里的每条陈述都需要原文摘录和页码。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "说明这个问题为什么影响性能、成本或使用体验。把作者的陈述与自己的判断分开标记。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "核心贡献：作者改变了哪一步？",
+          "tone": "blue",
+          "items": [
+            {
+              "text": "提炼一项最关键的机制，再列出支撑它的设计。使用“输入 → 处理 → 输出”的句式，减少术语堆积。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "保留核心术语英文，便于回到论文、代码仓库或其他文献中继续检索。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "related_work",
+      "title": "相关工作：技术路线与本文的位置",
+      "columns": 2,
+      "summary": {
+        "text": "按技术路线归纳已有研究，解释本文沿用了什么、改进了什么，以及比较需要哪些条件。",
+        "kind": "unknown",
+        "source_pages": [],
+        "quote": ""
+      },
+      "sections": [
+        {
+          "title": "按技术思路分组",
+          "tone": "blue",
+          "items": [
+            {
+              "text": "将论文讨论的相关工作分成两到四类，每类概述核心思路、适用问题及不足；不根据常识补充未经核实的引用。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "联系、差异与比较条件",
+          "tone": "gold",
+          "items": [
+            {
+              "text": "写清已有方法依赖什么、本文改变了哪一步。作者对其他工作的评价和读者自己的比较推断要分开标识。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "method",
+      "title": "方法：机制、公式与原论文图",
+      "columns": 2,
+      "summary": {
+        "text": "先概括输入、处理步骤和输出，再解释关键模块、训练目标及符号；复杂的方法可以占多页。",
+        "kind": "unknown",
+        "source_pages": [],
+        "quote": ""
+      },
+      "sections": [
+        {
+          "title": "步骤一：明确输入与输出",
+          "tone": "blue",
+          "items": [
+            {
+              "text": "输入可以是查询、上下文、图像或环境状态。输出可能是答案、动作、排序结果或新的记忆状态。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "这一模块应回答：模型在什么信息可见的条件下，执行哪一种任务？",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "步骤二：找到真正起作用的机制",
+          "tone": "green",
+          "items": [
+            {
+              "text": "把一个完整过程拆成三到五步，解释每步改变了什么变量，以及为什么需要这一步。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "区分模型训练阶段与推理阶段：哪些组件需要学习，哪些只在使用时运行？",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "关键公式：保留结构，解释意义",
+          "tone": "gold",
+          "formula": "\\mathcal{L}(\\theta)=-\\sum_{t=1}^{T}\\log p_\\theta(y_t\\mid x,y_{<t})",
+          "items": [
+            {
+              "text": "上面只是排版演示公式，不是任何目标论文的方法。实际使用时，公式必须从原文核对。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "解释每个符号、优化目标和适用条件；PDF 提取导致公式损坏时，可以直接裁剪原公式区域。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "机制与适用条件",
+          "tone": "red",
+          "items": [
+            {
+              "text": "概述正文支持的输入、机制与输出；存在运行例子时结合原文解释，不添加读后自测。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "不要为了“讲得通”填补论文未说明的实现细节。对于无法确认的部分，直接标为待确认。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "experiments",
+      "title": "实验：设置、结果与证据",
+      "columns": 2,
+      "summary": {
+        "text": "先对齐模型、数据、预算和指标，再总结主要结果、消融和失败案例；原论文正文图表全部收录。",
+        "kind": "unknown",
+        "source_pages": [],
+        "quote": ""
+      },
+      "sections": [
+        {
+          "title": "比较结果之前，先对齐条件",
+          "tone": "blue",
+          "table": {
+            "headers": [
+              "需要核对",
+              "原因"
+            ],
+            "rows": [
+              [
+                "模型与规模",
+                "影响能力上限"
+              ],
+              [
+                "数据集与划分",
+                "影响任务难度"
+              ],
+              [
+                "推理预算与工具",
+                "影响成本及公平性"
+              ],
+              [
+                "指标与单位",
+                "决定数字的含义"
+              ]
+            ]
+          },
+          "items": [
+            {
+              "text": "这是教学核对表，不含真实实验结果。处理论文时，要为每项条件补充能够定位的原文依据。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "主要结果：一个数字需要完整上下文",
+          "tone": "green",
+          "items": [
+            {
+              "text": "写明在哪个数据集、哪种模型和预算下，哪项指标相对哪个基线发生了怎样的变化。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "从 40% 到 50% 是提高 10 个百分点，相对提高 25%。两种说法不能混用。此处为算术示例。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "消融实验：哪个部件带来收益？",
+          "tone": "gold",
+          "items": [
+            {
+              "text": "观察去掉某个模块后结果如何变化，同时确认其他条件是否保持一致。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "记录反例、负结果与性能下降的任务。卡片应帮助理解机制，而不是只保留最好看的数字。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "结论能支持到什么程度？",
+          "tone": "red",
+          "items": [
+            {
+              "text": "区分相关性、受控实验支持的解释，以及作者尚未验证的猜测。模型生成的解释使用“解读”标签。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "程序能检查摘录是否确实出现在所标页面，但不能自动保证摘录支持中文结论。最后这一步需要阅读核对。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "limitations",
+      "title": "局限：结论成立的边界",
+      "columns": 2,
+      "summary": {
+        "text": "区分作者明确指出的不足、实验没有覆盖的情形，以及读者基于材料提出的判断。",
+        "kind": "unknown",
+        "source_pages": [],
+        "quote": ""
+      },
+      "sections": [
+        {
+          "title": "适用条件与局限",
+          "tone": "red",
+          "items": [
+            {
+              "text": "把论文明确指出的局限与读者自己的担忧分开呈现。若原文没有讨论某项条件，说明信息缺失。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            },
+            {
+              "text": "检查计算开销、数据需求、泛化能力、评估覆盖范围和失败案例。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "如何表达材料不足",
+          "tone": "gold",
+          "items": [
+            {
+              "text": "论文没有讨论的成本、泛化或评测条件应标为信息缺失，不能将未测试直接解释为失败。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "future_work",
+      "title": "未来展望：作者明确提出的方向",
+      "columns": 2,
+      "summary": {
+        "text": "仅整理正文中作者提出的后续工作；若原文没有提出，直接说明缺失。",
+        "kind": "unknown",
+        "source_pages": [],
+        "quote": ""
+      },
+      "sections": [
+        {
+          "title": "作者明确提出的方向",
+          "tone": "green",
+          "items": [
+            {
+              "text": "提炼论文结论或讨论中的未来工作，附原文页码和摘录；原文没有提出时写“原文未明确提出”。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        },
+        {
+          "title": "计划与结论的边界",
+          "tone": "gold",
+          "items": [
+            {
+              "text": "作者提出的未来方向尚不等于已验证结果；只按正文交代的范围概述，不补写研究计划。",
+              "kind": "unknown",
+              "source_pages": [],
+              "quote": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

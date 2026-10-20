@@ -1,0 +1,19 @@
+# Local dependencies and reproducible build/download caches
+/node_modules/
+/output/
+/work/
+/tmp/
+/coverage/
+
+# Credentials and local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.npmrc
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

@@ -1,0 +1,172 @@
+{
+  "reviewed": true,
+  "source": "arXiv:2610.21791v1",
+  "coverage": "已核对正文全部 figure/table；分图保留原编号和必要图例。附录不纳入。",
+  "assets": [
+    {
+      "id": "fig-1",
+      "label": "Figure 1",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 1,
+      "box": [
+        0.512,
+        0.258,
+        0.884,
+        0.592
+      ],
+      "caption": "图 1：瓶颈会移动，工作流经验应反馈到元智能体。",
+      "include": true
+    },
+    {
+      "id": "fig-2a",
+      "label": "Figure 2a",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.118,
+        0.082,
+        0.258,
+        0.379
+      ],
+      "caption": "图 2A：任务领域、Task-Agent、Meta-Agent 与三种候选更新。",
+      "include": true
+    },
+    {
+      "id": "fig-2bc",
+      "label": "Figure 2bc",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.258,
+        0.082,
+        0.884,
+        0.285
+      ],
+      "caption": "图 2B–C：执行任务、诊断瓶颈、选择工作流，并以同批次比较父代与候选。",
+      "include": true
+    },
+    {
+      "id": "fig-2d",
+      "label": "Figure 2d",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.258,
+        0.285,
+        0.884,
+        0.379
+      ],
+      "caption": "图 2D：对齐干预结果、提炼技能和原则、更新 Meta-Harness。",
+      "include": true
+    },
+    {
+      "id": "table-1",
+      "label": "Table 1",
+      "type": "table",
+      "scope": "body",
+      "source_page": 6,
+      "box": [
+        0.115,
+        0.082,
+        0.885,
+        0.511
+      ],
+      "caption": "表 1：全部 4B、8B 结果；Code 为 pass@1，SearchQA 为 F1，各基准独立比较。",
+      "include": true
+    },
+    {
+      "id": "table-2",
+      "label": "Table 2",
+      "type": "table",
+      "scope": "body",
+      "source_page": 6,
+      "box": [
+        0.511,
+        0.529,
+        0.885,
+        0.8
+      ],
+      "caption": "表 2：Qwen3-4B、5 轮；括号为相对 Vanilla 的变化，H/M/A 表示固定更新组件。",
+      "include": true
+    },
+    {
+      "id": "fig-3",
+      "label": "Figure 3",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 7,
+      "box": [
+        0.115,
+        0.082,
+        0.885,
+        0.401
+      ],
+      "caption": "图 3：六个任务的 rollout—性能曲线，单位 K；星号为 RSIFlow。",
+      "include": true
+    },
+    {
+      "id": "fig-4",
+      "label": "Figure 4",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 7,
+      "box": [
+        0.512,
+        0.421,
+        0.885,
+        0.626
+      ],
+      "caption": "图 4：左轴为 HumanEval+，右轴为每轮元模型 token（M）。",
+      "include": true
+    },
+    {
+      "id": "table-3",
+      "label": "Table 3",
+      "type": "table",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.115,
+        0.45,
+        0.49,
+        0.685
+      ],
+      "caption": "表 3：相同初始 Task-Agent；每个领域分数为两个基准的宏平均。",
+      "include": true
+    },
+    {
+      "id": "fig-5a",
+      "label": "Figure 5a",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.115,
+        0.082,
+        0.885,
+        0.231
+      ],
+      "caption": "图 5a：H–H–M–M–A 的五轮实例，技能随更新结果积累。",
+      "include": true
+    },
+    {
+      "id": "fig-5b",
+      "label": "Figure 5b",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.115,
+        0.231,
+        0.885,
+        0.405
+      ],
+      "caption": "图 5b：组件技能与跨组件原则，通过 Add、Supplement、Revise、Merge 维护。",
+      "include": true
+    }
+  ]
+}

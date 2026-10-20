@@ -1,0 +1,172 @@
+{
+  "reviewed": true,
+  "source": "arXiv:2606.01779v1",
+  "coverage": "已核对正文全部 figure/table；分图保留原编号和必要图例。附录不纳入。",
+  "assets": [
+    {
+      "id": "fig-1",
+      "label": "Figure 1",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 1,
+      "box": [
+        0.51,
+        0.258,
+        0.884,
+        0.607
+      ],
+      "caption": "图 1：固定系统、组件演化与框架—策略共同演化。",
+      "include": true
+    },
+    {
+      "id": "fig-2a",
+      "label": "Figure 2a",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.113,
+        0.082,
+        0.3,
+        0.392
+      ],
+      "caption": "图 2 左：计划、动作、记忆与适配器组成可演化系统。",
+      "include": true
+    },
+    {
+      "id": "fig-2b",
+      "label": "Figure 2b",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.3,
+        0.082,
+        0.632,
+        0.392
+      ],
+      "caption": "图 2 中：交替修改框架与策略，形成多条系统谱系。",
+      "include": true
+    },
+    {
+      "id": "fig-2c",
+      "label": "Figure 2c",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.632,
+        0.082,
+        0.889,
+        0.392
+      ],
+      "caption": "图 2 右：故障定位、候选生成、Pareto 筛选与策略对齐。",
+      "include": true
+    },
+    {
+      "id": "table-1",
+      "label": "Table 1",
+      "type": "table",
+      "scope": "body",
+      "source_page": 6,
+      "box": [
+        0.115,
+        0.082,
+        0.886,
+        0.463
+      ],
+      "caption": "表 1：4B 与 8B 全部主结果。Ans. 为答案指标，Path 为路径指标；不同任务的指标定义各异。",
+      "include": true
+    },
+    {
+      "id": "table-2",
+      "label": "Table 2",
+      "type": "table",
+      "scope": "body",
+      "source_page": 6,
+      "box": [
+        0.511,
+        0.474,
+        0.886,
+        0.706
+      ],
+      "caption": "表 2：Qwen3-4B；ToolHop 正确率与 SearchQA 宏平均答案 F1。",
+      "include": true
+    },
+    {
+      "id": "fig-3a",
+      "label": "Figure 3a",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 7,
+      "box": [
+        0.115,
+        0.084,
+        0.499,
+        0.274
+      ],
+      "caption": "图 3a：候选数 k=1、2、3；R1–R3 为演化轮次，虚线对应右轴指标。",
+      "include": true
+    },
+    {
+      "id": "fig-3b",
+      "label": "Figure 3b",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 7,
+      "box": [
+        0.502,
+        0.084,
+        0.886,
+        0.274
+      ],
+      "caption": "图 3b：rollout 预算与性能；星号为 HarnessForge。",
+      "include": true
+    },
+    {
+      "id": "fig-4",
+      "label": "Figure 4",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 7,
+      "box": [
+        0.51,
+        0.321,
+        0.884,
+        0.596
+      ],
+      "caption": "图 4：API-Bank；行是框架，列是策略，黄色边框为匹配组合。",
+      "include": true
+    },
+    {
+      "id": "fig-5",
+      "label": "Figure 5",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.115,
+        0.082,
+        0.886,
+        0.336
+      ],
+      "caption": "图 5：ToolHop 示例谱系，框架修订与适配器训练交替发生。",
+      "include": true
+    },
+    {
+      "id": "table-3",
+      "label": "Table 3",
+      "type": "table",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.115,
+        0.342,
+        0.49,
+        0.587
+      ],
+      "caption": "表 3：训练方式比较，Budget 的单位为千次 rollout。",
+      "include": true
+    }
+  ]
+}

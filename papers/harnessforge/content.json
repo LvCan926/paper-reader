@@ -1,0 +1,618 @@
+{
+  "title": "HarnessForge: Joint Harness and Policy Evolution for Adaptive Agent Systems",
+  "subtitle": "让执行框架与推理策略成对演化",
+  "source_label": "Mingju Chen et al. · arXiv:2606.01779v1 · 2026",
+  "chapters": [
+    {
+      "id": "background",
+      "title": "背景",
+      "summary": {
+        "text": "**核心问题：外部框架变好了，模型是否能可靠执行它？** HarnessForge 将执行框架与模型策略视为一个耦合系统，以成对演化改善工具使用和多跳问答。",
+        "kind": "paper",
+        "source_pages": [
+          2
+        ],
+        "quote": "However, this component-level view remains in- sufficient for system-level meta-adaptation. The core issue lies in the adaptation target : existing methods typically optimize external harness or in- ternal policies as separate objects, whereas a full LLM agent system operates as a coupled harness– policy pair. This coupling is especially salient in resource-constrained settings, where the harness provides structural support for limited model ca- pabilities and the policy must learn to execute the harness-induced execution paradigm. Moreover, existing adaptation still faces a compatibility gap . A more expressive harness may expose useful plan- ning, action, or memory structures, yet fail if the reasoner cannot reliably execute them; conversely, a stronger policy may still be constrained by a harness that exposes unsuitable states, actions, or control signals. Effective system-level adaptation should therefore go beyond optimizing either side alone and instead co-evolve the external har"
+      },
+      "sections": [
+        {
+          "id": "task",
+          "title": "复杂任务需要不同的执行方式",
+          "items": [
+            {
+              "text": "工具调用依赖严格的参数与接口，多跳检索需要分解问题，持续交互还需要状态追踪与记忆。任务之间的差别不仅是难度，也包括如何组织执行。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "stateful multi-turn tasks (Yao et al., 2024; Shinn et al., 2023). These regimes differ not only in task difficulty, but also in the structural requirements they impose on agent execution. Some require explicit task decomposition and verification, some rely on strict action schemas and tool-use protocols, while others demand persistent memory exposure, or state tracking. Such diversity suggests that there is unlikely to be a single fixed agent system that performs optimally across regimes. Instead, agent systems should be able to meta-adapt their execu- tion paradigms to the target task regime. As shown in Fig. 1, recent work has begun to move toward this goal by treating agent compo- nents as adaptive objects rather than fixed hand- written artifacts (Hu et al., 2025; Zhang et al., 2025c; Shang et al., 2025; Zhang et al., 2025a). Concretely, some search-style methods optimize external execution structures, including workflows, arXiv:2606.01779v1 [cs.CL] 1 Jun 2026 "
+            },
+            {
+              "text": "固定的人工框架难以适配所有任务。对较小模型而言，框架能补充结构支持，但模型也必须学会遵守它暴露的计划、动作和记忆接口。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "This coupling is especially salient in resource-constrained settings, where the harness provides structural support for limited model ca- pabilities and the policy must learn to execute the harness-induced execution paradigm. Moreover, existing adaptation still faces a compatibility gap . A more expressive harness may expose useful plan- ning, action, or memory structures, yet fail if the reasoner cannot reliably execute them; conversely, a stronger policy may still be constrained by a harness that exposes unsuitable states, actions, or control signals. Effective system-level adaptation should therefore go beyond optimizing either side alone and instead co-evolve the external harness and internal policy to improve their compatibility. Motivated by this view, we formulate an LLM agent system as a harness–policy pair, making the coupled harness and policy the explicit unit of adap- tation. The harness specifies the external execution interface, including planning, action, and memory stru"
+            }
+          ]
+        },
+        {
+          "id": "gap",
+          "title": "兼容性缺口：组件强，不等于组合强",
+          "items": [
+            {
+              "text": "更复杂的 harness 可能提供有用信息，却因模型执行不稳定而失效；更强的策略也可能受制于不合适的状态、动作与控制信号。优化对象应是二者的组合。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "A more expressive harness may expose useful plan- ning, action, or memory structures, yet fail if the reasoner cannot reliably execute them; conversely, a stronger policy may still be constrained by a harness that exposes unsuitable states, actions, or control signals. Effective system-level adaptation should therefore go beyond optimizing either side alone and instead co-evolve the external harness and internal policy to improve their compatibility. Motivated by this view, we formulate an LLM agent system as a harness–policy pair, making the coupled harness and policy the explicit unit of adap- tation. The harness specifies the external execution interface, including planning, action, and memory structures that shape agent behavior; the policy captures how the reasoner executes within this in- terface. Based on this formulation, we propose HarnessForge, a framework for harness–policy co- adaptation. On the harness side, HarnessForge uses rollout diagnostics with a meta-agent to per- f"
+            },
+            {
+              "text": "本文交替进行失败引导的框架修改与框架条件下的策略训练，再选择匹配的组合进入下一轮。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "On the harness side, HarnessForge uses rollout diagnostics with a meta-agent to per- form fault-guided harness tailoring over planning, action, and memory components. On the policy side, it trains harness-conditioned adapters from curated trajectories to align the reasoner with the selected harness. Finally, HarnessForge selects and evolves harness–policy pairs, optimizing task- regime-adapted agent systems rather than isolated workflows or policies across evolutionary rounds. Our contributions are summarized as follows: • We reformulate system-level LLM agent adap- tation from local component optimization to harness–policy pair evolution, treating the cou- pled external harness and internal policy as the basic unit of optimization. • We propose HarnessForge, a meta-adaptive co-evolution framework that coordinates fault-guided harness tailoring with harness- conditioned policy alignment to improve pair-level executable compatibility. • We evaluate HarnessForge across five bench- marks "
+            }
+          ],
+          "emphasis": true
+        }
+      ]
+    },
+    {
+      "id": "related_work",
+      "title": "相关工作",
+      "summary": {
+        "text": "已有研究分别搜索外部执行结构，或训练内部推理策略；本文把两者的可执行兼容性显式纳入优化。",
+        "kind": "paper",
+        "source_pages": [
+          2
+        ],
+        "quote": "Optimization for Agent System Design Prior work shows that LLM-agent capabilities are strongly shaped by the external harness used to organize reasoning and execution. Early prompt- ing and interaction paradigms, such as Chain-of- Thought (Wei et al., 2022), Plan-and-Solve (Wang et al., 2023), and ReAct (Yao et al., 2023), in- troduce explicit reasoning traces, plans, actions, and observations. Agent frameworks further ex- pose more components, including roles, proto- cols, and memory modules in AutoGen (Wu et al., 2024), MetaGPT (Hong et al., 2024), and memory- augmented agent systems (Zhong et al., 2023; Packer et al., 2024; Zhang et al., 2025b). More recent search-style methods automate harness de- sign through workflow or architecture search, in- cluding ADAS (Hu et al., 2025), AFlow (Zhang et al., 2025c), AgentSquare (Shang et al., 2025), MaAS (Zhang et al., 2025a), AutoHarness (Lou et al., 2026), Meta-Harness (Lee et al., 2026) and MermaidFlow (Zheng et al., 2025a). These works r"
+      },
+      "sections": [
+        {
+          "id": "search",
+          "title": "外部结构：从人工工作流到自动搜索",
+          "items": [
+            {
+              "text": "CoT、Plan-and-Solve、ReAct 定义推理与交互模式；AutoGen、MetaGPT、记忆增强系统增加角色、协议和记忆模块。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Early prompt- ing and interaction paradigms, such as Chain-of- Thought (Wei et al., 2022), Plan-and-Solve (Wang et al., 2023), and ReAct (Yao et al., 2023), in- troduce explicit reasoning traces, plans, actions, and observations. Agent frameworks further ex- pose more components, including roles, proto- cols, and memory modules in AutoGen (Wu et al., 2024), MetaGPT (Hong et al., 2024), and memory- augmented agent systems (Zhong et al., 2023; Packer et al., 2024; Zhang et al., 2025b). More recent search-style methods automate harness de- sign through workflow or architecture search, in- cluding ADAS (Hu et al., 2025), AFlow (Zhang et al., 2025c), AgentSquare (Shang et al., 2025), MaAS (Zhang et al., 2025a), AutoHarness (Lou et al., 2026), Meta-Harness (Lee et al., 2026) and MermaidFlow (Zheng et al., 2025a). These works reduce manual engineering and establish harnesses as important optimization targets, but they mainly optimize external structures while leaving compati- bility with the "
+            },
+            {
+              "text": "ADAS、AFlow、AgentSquare、MaAS 等搜索框架或工作流，主要改外部结构，通常没有联合训练与之配套的模型执行器。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "More recent search-style methods automate harness de- sign through workflow or architecture search, in- cluding ADAS (Hu et al., 2025), AFlow (Zhang et al., 2025c), AgentSquare (Shang et al., 2025), MaAS (Zhang et al., 2025a), AutoHarness (Lou et al., 2026), Meta-Harness (Lee et al., 2026) and MermaidFlow (Zheng et al., 2025a). These works reduce manual engineering and establish harnesses as important optimization targets, but they mainly optimize external structures while leaving compati- bility with the model-side executor implicit. Agentic RL for Policy Evolution Another line of work optimizes the model-side policy. Re- cent agentic RL methods train models from in- teractive trajectories with task rewards, tool feed- back, or environment signals. For search and "
+            }
+          ]
+        },
+        {
+          "id": "training",
+          "title": "内部策略：在给定接口内学会行动",
+          "items": [
+            {
+              "text": "Search-R1、ToolRL、ToRL 学习何时及如何调用外部工具；GiGPO、TreeRL、ARPO 处理长期交互与信用分配。这条路线一般假设交互循环或接口预先固定。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "tool use, Search-R1 (Jin et al., 2025), ToolRL (Qian et al., 2026), and ToRL (Li et al., 2025) optimize when and how models issue external ac- tions. For long-horizon agent execution, GiGPO (Feng et al., 2025), TreeRL (Hou et al., 2025), and ARPO (Dong et al., 2026) address credit as- signment and trajectory-level optimization, while Planner-R1 (Zhu et al., 2025) and Memory-R1 (Yan et al., 2026) extend RL to planning and mem- ory management. Broader reasoning-RL systems, including DeepseekMATH (GRPO) (Shao et al., 2024), DAPO (Yu et al., 2025), GSPO (Zheng et al., 2025b), Satori (Shen et al., 2025), and Absolute Zero (Zhao et al., 2025), further show that RL can improve reasoning, exploration, and self-generated curricula. These methods strengthen the internal executor, but typically assume a fixed, externally specified interaction loop or task interface. 3 Methodology Fig. 2 shows the overall workflow of HarnessForge. Sec. 3.1 formalizes the agent system, and evalua- tion criteria. Se"
+            }
+          ]
+        },
+        {
+          "id": "fig1",
+          "title": "图 1 · 三种适应方式的区别",
+          "items": [
+            {
+              "text": "从固定人工系统，到仅修改一个组件，再到同时演化 harness 与 policy。关键变化是把“匹配的一对”作为下一轮的继承单元。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Figure 1: A three-stage view of LLM agent adaptation: fixed handcrafted systems, local component adaptation, and harness–policy co-evolution (HarnessForge). stateful multi-turn tasks (Yao et al., 2024; Shinn et al., 2023). These regimes differ not only in task difficulty, but also in the structural requirements they impose on agent execution. Some require explicit task decomposition and verification, some rely on strict action schemas and tool-use protocols, while others demand persistent memory exposure, or state tracking. Such diversity suggests that there is unlikely to be a single fixed agent system that performs optimally across regimes. Instead, agent systems should be able to meta-adapt their execu- tion paradigms to the target task regime. As shown in Fig. 1, recent work has begun to move toward this goal by treating agent compo- nents as adaptive objects rather than fixed hand- written artifacts (Hu et al., 2025; Zhang et al., 2025c; Shang et al., 2025; Zhang et al., 2025a). C"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "method",
+      "title": "方法",
+      "summary": {
+        "text": "**每轮先改框架，再对齐策略。** 轨迹反馈用于定位故障、搜索候选框架，也被复用于训练轻量适配器，减少额外采样。",
+        "kind": "paper",
+        "source_pages": [
+          4
+        ],
+        "quote": "Round Structure. At round r , HarnessForge maintains a population of the agent systems G ( r ) : G ( r ) = {G ( r ) i = ( H ( r ) i , R ( r ) δ i ) } i ∈ I ( r ) , (3) where each element is an executable harness–policy pair. The initial round r = 0 starts from a singleton population containing a manually designed base harness and the frozen base reasoner. Given the evolution batch data B r , HarnessForge first performs harness tailoring. For each agent, G ( r ) i executes tasks on B r and collects trajectories, execution statistics, and environment feedback. A meta-agent tailoring operator T ψ then updates the harness population through controlled executable harness editing, including fault attribution, archive- guided improvement, candidate generation, and budgeted Pareto selection: C ( r +1) = T ψ \u0000 {G ( r ) i } i ∈ I ( r ) , Z ( r ) , B r \u0001 , (4) where C ( r +1) is the survivor harness set retained for the next policy-evolution stage. Conditioned on the survivor harness set C ( r +1"
+      },
+      "sections": [
+        {
+          "id": "state",
+          "title": "图 2a · 系统由哪些部分组成？",
+          "items": [
+            {
+              "text": "$\\mathcal H$ 包含计划、动作和记忆；$\\mathcal R_\\delta$ 是基础推理模型加轻量适配器。计划负责分解与终止，动作负责工具协议，记忆负责写入、检索及暴露信息。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "Here H is the editable execution harness, which de- composes into three execution-layer components: P denotes the planning component, including task decomposition, replanning, and termination. A denotes the action component, including tool inter- faces, role assignment, and orchestration rules. M denotes the memory component, including what is written, retrieved, summarized, and exposed to future decisions. The adapted reasoner R δ denotes the reasoning component, which parameterizes the policy that executes under this harness, and δ is a lightweight adapter on base reasoner R θ 0 . Evaluation Criteria. Given a task x and trajec- tory τ x , we let ϕ ( τ, x ) collect final response quality within environment, negative token cost, negative latency to evaluate the agent system, with larger values preferred in every dimension. For a batch B ⊂ D , we define fitness indicator J ( G ; B ) : J ( G ; B ) = 1 | B | X x ∈ B ϕ \u0000 τ x ( G ) , x \u0001 . (2) These criteria are used for Pareto-based valida"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-2a"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\begin{gathered}\\mathcal G=(\\mathcal H,\\mathcal R_\\delta),\\\\\\mathcal H=(\\mathcal P,\\mathcal A,\\mathcal M),\\qquad \\mathcal R_\\delta=\\mathcal R_{\\theta_0+\\delta}\\end{gathered}",
+              "explanation": "θ₀ 为基础模型参数，δ 为适配器；优化的是可执行的系统组合。",
+              "source_pages": [
+                3
+              ],
+              "quote": "Agent-System Formulation. We formulate an LLM agent system G as the coupling of an external harness H and an adapted reasoner R δ : G = ( H , R δ ) , H = ( P , A , M ) , R δ = R θ 0 + δ . (1) Here H is the editable execution harness, which de- composes into three execution-layer components: P denotes the planning component, including task decomposition, replanning, and termination. A denotes the action component, including tool inter- faces, role assignment, and orchestration rules. M denotes the memory component, including what is written, retrieved, summarized, and exposed to future decisions. The adapted reasoner R δ denotes the reasoning component, which parameterizes the policy that executes under this harness, and δ is a lightweight adapter on base reasoner R θ 0 . Evaluation Criteria. Given a task x and trajec- tory τ x , we let ϕ ( τ, x ) collect final response quality within environment, negative token cost, negative latency to evaluate the agent system, with larger values pre"
+            }
+          ]
+        },
+        {
+          "id": "round",
+          "title": "图 2b · 多轮演化与匹配继承",
+          "items": [
+            {
+              "text": "初始种群只有人工框架与冻结基础模型。每轮在任务批次上收集轨迹，筛选修改后的框架，为幸存框架训练专属策略，再把匹配组合交给下一轮。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "The initial round r = 0 starts from a singleton population containing a manually designed base harness and the frozen base reasoner. Given the evolution batch data B r , HarnessForge first performs harness tailoring. For each agent, G ( r ) i executes tasks on B r and collects trajectories, execution statistics, and environment feedback. A meta-agent tailoring operator T ψ then updates the harness population through controlled executable harness editing, including fault attribution, archive- guided improvement, candidate generation, and budgeted Pareto selection: C ( r +1) = T ψ \u0000 {G ( r ) i } i ∈ I ( r ) , Z ( r ) , B r \u0001 , (4) where C ( r +1) is the survivor harness set retained for the next policy-evolution stage. Conditioned on the survivor harness set C ( r +1) , HarnessForge performs policy alignment for each harness through a policy-evolution operator E η : R ( r +1) δ k = E η \u0000 ( H ( r +1) k , R ( r ) δ k ) , B r \u0001 (5) Unlike traditional post-training, the goal of policy evolut"
+            },
+            {
+              "text": "策略训练的目标是适应所选框架的执行约定，不是声称获得一个对所有任务普遍更强的模型。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Unlike traditional post-training, the goal of policy evolution is to improve compatibility between the reasoning policy and the execution harness instead of optimizing a universally stronger reasoner. Overview. At a higher level, each round alter- nates between (i) evolving harness structures from trajectory-level execution evidence, and (ii) evolv- ing harness-conditioned reasoning policies from the resulting survivor population: G ( r ) = { ( H ( r ) k , R ( r ) δ k ) } → { ( H ( r +1) k , R ( r ) δ k ) } → { ( H ( r +1) k , R ( r +1) δ k ) } = G ( r +1) . (6) By iterating this co-evolution process, both the execution harness and the governing reasoning pol- icy evolve jointly, yielding increasingly adaptive agent systems over time. The implementation de- tails of harness evolution and policy evolution are presented in Sec. 3.3 and Sec. 3.4, respectively. 3.3 Fault-Guided Harness Tailoring The main challenge in agent system evolution is to locate which part of the harness causes fail"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-2b"
+            }
+          ]
+        },
+        {
+          "id": "tailoring",
+          "title": "图 2c · 定位故障，再修改框架",
+          "items": [
+            {
+              "text": "元智能体联合查看框架代码、代表性失败轨迹和评价向量，把错误归因到计划、动作或记忆。随后检索与故障相关且质量较好的历史框架，形成修改报告并生成候选。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Fault Attribution. For each active system G ( r ) i = ( H ( r ) i , R ( r ) δ i ) , HarnessForge first evaluates G ( r ) i on batch B r , producing rollout traces T ( r ) i and the evaluation vector J ( G ( r ) i ; B r ) defined in Eq. 2. A meta-agent then performs fault-attribution oper- ation L ω by jointly inspecting the current harness design and its representative failure trajectories: F ( r ) H i = L ω \u0010 H ( r ) i , T ( r ) i , J ( G ( r ) i ; B r ) \u0011 , (7) where F ( r ) H i is the fault report, attributing failures to planning, action and memory components. Archive-Guided Improvement. HarnessForge maintains an archive Z ( r ) of historical harnesses, storing compact summaries of harness designs and their corresponding evaluation vectors J . Given the current harness H ( r ) i and its fault report F ( r ) H i , the meta-agent samples exemplar cases S ( r ) H i ⊂ Z ( r ) based on fault relevance and Pareto-front quality, and produces an improvement report: I ( r ) H i = R ω \u0010 H ( "
+            },
+            {
+              "text": "候选只编辑执行层组件。先用较小任务子集评估，逐步扩大评估范围并筛选，以降低完整评估全部候选的成本。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "The operator only edits the execution-layer com- ponents P , A , and M . Let C ( r ) 0 = S i C ( r ) H i be the pooled candidate set. Since fully evaluating every candidate is expensive, HarnessForge applies half- selection over progressively larger task subsets. At filtering stage t , each candidate harness H ∈ C ( r ) t − 1 is paired with the corresponding policy to form an executable system G H and evaluated on B r,t us- ing the batch fitness J ( G H ; B r,t ) . Candidates are selected according to Pareto optimality over the di- mensions of this evaluation vector, and the retained subset becomes C ( r ) t . After filtering, HarnessForge updates the archive Z ( r +1) with each evaluated harness and its evaluation vector J ( G H ; B r,t ) , en- abling later Pareto-aware retrieval. The survivor harnesses C ( r +1) = C ( r ) T are then passed to pol- icy evolution. Implementation details of the whole tailoring process are provided in App. C.4. 3.4 Harness-Conditioned Policy Alignment Af"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-2c"
+            }
+          ]
+        },
+        {
+          "id": "selection",
+          "title": "选择标准：质量、开销与延迟",
+          "items": [
+            {
+              "text": "评价向量汇总最终回答质量、负 token 成本与负延迟，各维都以更大为好。Pareto 选择保留不同权衡下的候选，已评估框架及得分进入历史档案。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "Evaluation Criteria. Given a task x and trajec- tory τ x , we let ϕ ( τ, x ) collect final response quality within environment, negative token cost, negative latency to evaluate the agent system, with larger values preferred in every dimension. For a batch B ⊂ D , we define fitness indicator J ( G ; B ) : J ( G ; B ) = 1 | B | X x ∈ B ϕ \u0000 τ x ( G ) , x \u0001 . (2) These criteria are used for Pareto-based validation and selection of candidate systems; the detailed evaluation procedure is provided in App. C.1. "
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\mathbf J(\\mathcal G;B)=\\frac1{|B|}\\sum_{x\\in B}\\phi(\\tau_x(\\mathcal G),x)",
+              "explanation": "B 为任务批次，τₓ 为系统执行轨迹，φ 返回多维评价结果。",
+              "source_pages": [
+                3
+              ],
+              "quote": "Evaluation Criteria. Given a task x and trajec- tory τ x , we let ϕ ( τ, x ) collect final response quality within environment, negative token cost, negative latency to evaluate the agent system, with larger values preferred in every dimension. For a batch B ⊂ D , we define fitness indicator J ( G ; B ) : J ( G ; B ) = 1 | B | X x ∈ B ϕ \u0000 τ x ( G ) , x \u0001 . (2) These criteria are used for Pareto-based validation and selection of candidate systems; the detailed evaluation procedure is provided in App. C.1. "
+            }
+          ]
+        },
+        {
+          "id": "alignment",
+          "title": "策略对齐：复用成功轨迹训练 LoRA",
+          "items": [
+            {
+              "text": "子策略从父系继承参数，再训练新的框架专属 LoRA 更新。筛选过程中已产生的轨迹不丢弃，只保留成功轨迹用于主要实验中的监督对齐。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Parent Initialization. For each survivor harness H ( r +1) k , HarnessForge initializes the child policy from its parent lineage and trains a new harness- specific LoRA (Hu et al., 2021) update, denoted as δ ( r +1) k = Merge( δ ( r ) k ) ⊕ ∆ δ ( r +1) k . Here, Merge( · ) folds the parent adapter into the child initialization, while ∆ δ ( r +1) k adapts the policy to the evolved har- ness. Details are provided in App. D.1. Trajectory Curation. Under the same rollout budget, policy evolution should not introduce a separate data-collection stage. HarnessForge there- fore reuses the rollout pool already produced when H ( r +1) k is evaluated during budgeted harness selec- tion. Denote this pool by T ( r +1) k . We keep the successful trajectories: T + k = { τ x ∈ T ( r +1) k | S ( τ x ) = 1 } . (10) Here S ( τ x ) is the task-success indicator used in evaluation. This keeps trajectory curation tied to the same success signal that determines the harness success rate, while avoiding extra "
+            },
+            {
+              "text": "每一步输入含任务、当前框架接口、累计观察、记忆和可用动作；目标是下一步推理、工具调用、记忆操作或最终回答。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Harness-Conditioned Evolution. HarnessForge converts the retained successful rollouts into step- level supervision for the selected harness. Each trajectory τ x ∈ T + k is decomposed into deci- sion pairs ( z t , y t ) over its time steps, yielding the harness-conditioned dataset D H k = { ( z t , y t ) } used by the alignment loss. The input z t = \u0000 x, H ( r +1) k , o ≤ t , m t , a t \u0001 packages the task instruc- tion, active harness interface, accumulated observa- tions, current memory state, and available actions; the target y t is the corresponding next behavior, such as a reasoning step, tool action, memory opera- tion, or final response. More general policy-update objectives can instantiate this stage, as discussed in App. D. In the main experiments, HarnessForge uses supervised trace alignment because it reuses the successful trajectories above and offers a favor- able rollout–performance tradeoff:: ∆ δ ( r +1) k = arg min ∆ δ L \u0000 R ( r ) δ k ⊕ ∆ δ ; D H k \u0001 . (11) This objective"
+            }
+          ],
+          "emphasis": true,
+          "formulas": [
+            {
+              "latex": "\\mathcal T_k^+=\\{\\tau_x\\in\\mathcal T_k^{(r+1)}\\mid S(\\tau_x)=1\\}",
+              "explanation": "S 表示任务成功；训练数据由保留轨迹中的逐步决策对组成。",
+              "source_pages": [
+                5
+              ],
+              "quote": "Trajectory Curation. Under the same rollout budget, policy evolution should not introduce a separate data-collection stage. HarnessForge there- fore reuses the rollout pool already produced when H ( r +1) k is evaluated during budgeted harness selec- tion. Denote this pool by T ( r +1) k . We keep the successful trajectories: T + k = { τ x ∈ T ( r +1) k | S ( τ x ) = 1 } . (10) Here S ( τ x ) is the task-success indicator used in evaluation. This keeps trajectory curation tied to the same success signal that determines the harness success rate, while avoiding extra rollout cost. Harness-Conditioned Evolution. HarnessForge converts the retained successful rollouts into step- level supervision for the selected harness. Each trajectory τ x ∈ T + k is decomposed into deci- sion pairs ( z t , y t ) over its time steps, yielding the harness-conditioned dataset D H k = { ( z t , y t ) } used by the alignment loss. The input z t = \u0000 x, H ( r +1) k , o ≤ t , m t , a t \u0001 packages the task instru"
+            },
+            {
+              "latex": "\\Delta\\delta_k^{(r+1)}=\\arg\\min_{\\Delta\\delta}\\mathcal L\\!\\left(\\mathcal R_{\\delta_k}^{(r)}\\oplus\\Delta\\delta;\\mathcal D_{\\mathcal H_k}\\right)",
+              "explanation": "只学习继承策略之上的增量适配器；该训练阶段复用已有 rollout。",
+              "source_pages": [
+                5
+              ],
+              "quote": "In the main experiments, HarnessForge uses supervised trace alignment because it reuses the successful trajectories above and offers a favor- able rollout–performance tradeoff:: ∆ δ ( r +1) k = arg min ∆ δ L \u0000 R ( r ) δ k ⊕ ∆ δ ; D H k \u0001 . (11) This objective learns only an incremental adapter on top of the inherited policy, aligning the execu- tor to H ( r +1) k without spending additional rollouts. The result is a matched next-round harness–policy pair G ( r +1) k = ( H ( r +1) k , R ( r +1) δ k ) , which enters the next-round population rather than being treated as a general-purpose model upgrade. 4 Experiments 4.1 Experimental Setup Benchmarks. We evaluate HarnessForge on di- verse benchmarks: ToolHop (Ye et al., 2025), RestBench-TMDB (Song et al., 2023), and API- Bank (Li et al., 2023) measure tool selection, and API-grounded execution capabilities. SearchQA, built from HotpotQA (Yang et al., 2018) and 2Wiki- MultiHopQA (Ho et al., 2020), evaluates retrieval- heavy multi-hop quest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "experiments",
+      "title": "实验",
+      "summary": {
+        "text": "正文通过主结果、模块消融、预算曲线、交叉配对与演化案例，检验联合演化是否优于仅改框架或仅训练策略。",
+        "kind": "paper",
+        "source_pages": [
+          6
+        ],
+        "quote": "4.2 Main Results Tab. 1 compares HarnessForge with harness-search and policy-training baselines across five agentic benchmark and two backbone sizes, averaging +3.56% over per-metric strongest baselines. Har- nessForge delivers strong performance gains and reaches SOTA results on most benchmarks, span- ning both tool-use and retrieval settings. Notably, the policy-training baselines RLOO and GRPO require larger rollout budgets than HarnessForge (App. E.3), yet still fall behind on most metrics. The largest gains appear on TMDB: HarnessForge improves success by 12.00% with Qwen3-4B and 6.00% with Qwen3-8B over the strongest baseline. On API-Bank, it improves API accuracy by average 4.96% across backbones. It also remains strong on reasoning-heavy benchmarks, with average 3.34% ToolHop answer gains across backbones and best SearchQA overall scores 42.83%. Table 2: Module ablation of HarnessForge using Qwen3- 4B. ToolHop reports final-answer correctness, and SearchQA reports the macro-ave"
+      },
+      "sections": [
+        {
+          "id": "setup",
+          "title": "任务、模型与比较对象",
+          "items": [
+            {
+              "text": "工具任务为 ToolHop、RestBench-TMDB、API-Bank；SearchQA 包含 HotpotQA 与 2WikiMultiHopQA。后两项按一个检索问答组汇报，不能把指标列数当作独立任务数。",
+              "kind": "interpretation",
+              "source_pages": [
+                5
+              ],
+              "quote": "Benchmarks. We evaluate HarnessForge on di- verse benchmarks: ToolHop (Ye et al., 2025), RestBench-TMDB (Song et al., 2023), and API- Bank (Li et al., 2023) measure tool selection, and API-grounded execution capabilities. SearchQA, built from HotpotQA (Yang et al., 2018) and 2Wiki- MultiHopQA (Ho et al., 2020), evaluates retrieval- heavy multi-hop question answering. Detailed de- scriptions and dataset statistics are in App. B. Implementation Details. We instantiate Har- nessForge with Qwen3-4B and Qwen3-8B (Yang et al., 2025) as the default backbones to evaluate its effectiveness. The meta-agent used for harness evo- lution is GPT-5.5. We run r = 3 evolution rounds and report the main setting that retains | C | = 2 survivor harnesses per round. Additional imple- mentation details are provided in App. C. Baselines. We compare HarnessForge against two main baseline groups: Search-style harness "
+            },
+            {
+              "text": "基础模型为 Qwen3-4B、8B，元智能体为 GPT-5.5；主设置演化 3 轮，每轮保留 2 个框架。比较搜索式方法与 SFT、GRPO、RLOO。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Implementation Details. We instantiate Har- nessForge with Qwen3-4B and Qwen3-8B (Yang et al., 2025) as the default backbones to evaluate its effectiveness. The meta-agent used for harness evo- lution is GPT-5.5. We run r = 3 evolution rounds and report the main setting that retains | C | = 2 survivor harnesses per round. Additional imple- mentation details are provided in App. C. Baselines. We compare HarnessForge against two main baseline groups: Search-style harness "
+            }
+          ]
+        },
+        {
+          "id": "main",
+          "title": "表 1 · 两种规模下的主结果",
+          "items": [
+            {
+              "text": "4B 在 TMDB 成功率达到 **76.00%**，最强基线为 64.00%，增加 **12 个百分点**；8B 为 80.00%，相对最强基线 74.00% 增加 6 个百分点。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "Method ToolHop SearchQA TMDB API-Bank Ans. Path Hotpot 2Wiki Overall Succ. Path Succ. Path API. Qwen3-4B ADAS 40.00 44.99 28.67 28.00 28.33 45.00 57.43 51.75 57.31 60.99 AgentSquare 29.23 39.46 29.33 30.00 29.67 35.00 49.83 39.47 47.82 46.10 AFlow 31.28 43.81 30.67 29.33 30.00 32.00 47.64 37.72 45.72 41.13 MaAS 42.05 51.80 30.67 30.00 30.33 37.00 46.57 52.63 62.74 63.83 MermaidFlow 44.62 58.74 31.33 28.00 29.67 39.00 51.95 54.39 64.33 60.28 SFT 45.13 63.90 36.67 38.67 37.67 61.00 75.70 69.30 75.10 73.76 RLOO 46.15 64.87 35.33 40.00 37.67 61.00 77.42 72.81 78.82 76.60 GRPO 49.74 66.41 36.00 43.33 39.67 64.00 76.67 71.93 76.46 75.18 HarnessForge 52.82 68.10 42.00 42.00 42.00 76.00 85.10 77.19 80.07 82.27 Qwen3-8B ADAS 42.05 61.32 31.33 32.00 31.67 51.00 60.41 54.39 60.14 59.57 AgentSquare 30.77 41.22 29.33 30.00 29.50 38.00 53.83 45.61 54.37 53.90 AFlow 32.82 54.12 31.33 32.67 32.00 39.00 51.28 43.86 49.74 47.52 MaAS 44.62 51.80 32.00 32.00 32.00 43.00 54.78 57.89 66.72 60.28 MermaidFlow"
+            },
+            {
+              "text": "优势不是每一列都成立：4B 的 2Wiki 为 42.00，低于 GRPO 的 43.33；8B 的 ToolHop Path 为 74.05，低于 GRPO 的 75.62。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "Method ToolHop SearchQA TMDB API-Bank Ans. Path Hotpot 2Wiki Overall Succ. Path Succ. Path API. Qwen3-4B ADAS 40.00 44.99 28.67 28.00 28.33 45.00 57.43 51.75 57.31 60.99 AgentSquare 29.23 39.46 29.33 30.00 29.67 35.00 49.83 39.47 47.82 46.10 AFlow 31.28 43.81 30.67 29.33 30.00 32.00 47.64 37.72 45.72 41.13 MaAS 42.05 51.80 30.67 30.00 30.33 37.00 46.57 52.63 62.74 63.83 MermaidFlow 44.62 58.74 31.33 28.00 29.67 39.00 51.95 54.39 64.33 60.28 SFT 45.13 63.90 36.67 38.67 37.67 61.00 75.70 69.30 75.10 73.76 RLOO 46.15 64.87 35.33 40.00 37.67 61.00 77.42 72.81 78.82 76.60 GRPO 49.74 66.41 36.00 43.33 39.67 64.00 76.67 71.93 76.46 75.18 HarnessForge 52.82 68.10 42.00 42.00 42.00 76.00 85.10 77.19 80.07 82.27 Qwen3-8B ADAS 42.05 61.32 31.33 32.00 31.67 51.00 60.41 54.39 60.14 59.57 AgentSquare 30.77 41.22 29.33 30.00 29.50 38.00 53.83 45.61 54.37 53.90 AFlow 32.82 54.12 31.33 32.67 32.00 39.00 51.28 43.86 49.74 47.52 MaAS 44.62 51.80 32.00 32.00 32.00 43.00 54.78 57.89 66.72 60.28 MermaidFlow"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "table-1"
+            }
+          ]
+        },
+        {
+          "id": "ablation",
+          "title": "表 2 · 两个演化环节都有效",
+          "items": [
+            {
+              "text": "4B 第 3 轮完整方法在 ToolHop / SearchQA 为 **52.82 / 42.00**。去掉框架演化降至 46.67 / 37.00；去掉策略演化降至 50.26 / 39.00。",
+              "kind": "paper",
+              "source_pages": [
+                6
+              ],
+              "quote": "Table 2: Module ablation of HarnessForge using Qwen3- 4B. ToolHop reports final-answer correctness, and SearchQA reports the macro-average answer F1. Round Variant ToolHop SearchQA Round0 Vanilla 41.03 34.33 Round1 HarnessForge 46.15 38.67 -w/o Harness Evo. 43.08 ( ↓ 3.07) 35.67 ( ↓ 3.00) -w/o Policy Evo. 44.62 ( ↓ 1.53) 36.33 ( ↓ 2.34) Round2 HarnessForge 50.77 40.33 -w/o Harness Evo. 44.62 ( ↓ 6.15) 36.33 ( ↓ 4.00) -w/o Policy Evo. 48.72 ( ↓ 2.05) 38.33 ( ↓ 2.00) Round3 HarnessForge 52.82 42.00 -w/o Harness Evo. 46.67 ( ↓ 6.15) 37.00 ( ↓ 5.00) -w/o Policy Evo. 50.26 ( ↓ 2.56) 39.00 ( ↓ 3.00) 4.3 Ablation Study Tab. 2 shows that removing either harness tailoring or policy alignment consistently degrades perfor- mance on both ToolHop and SearchQA, indicat- ing that both modules are necessary for Harness- Forge. Harness tailoring is the dominant factor: disabling it causes the largest drop in every round, and the gap becomes larger as evolution proceeds, increasing from -3.07%/-3.00% in"
+            },
+            {
+              "text": "框架修改贡献较大，配套策略训练仍有额外价值；随着轮数增加，缺少其中任一环节的差距整体扩大。",
+              "kind": "paper",
+              "source_pages": [
+                6
+              ],
+              "quote": "4.3 Ablation Study Tab. 2 shows that removing either harness tailoring or policy alignment consistently degrades perfor- mance on both ToolHop and SearchQA, indicat- ing that both modules are necessary for Harness- Forge. Harness tailoring is the dominant factor: disabling it causes the largest drop in every round, and the gap becomes larger as evolution proceeds, increasing from -3.07%/-3.00% in Round 1 to - 6.15%/-5.00% in Round 3 on ToolHop/SearchQA. Removing policy alignment also hurts performance, with final-round drops of -2.56% on ToolHop and "
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "table-2"
+            }
+          ]
+        },
+        {
+          "id": "survivors",
+          "title": "图 3a · 保留多少候选？",
+          "items": [
+            {
+              "text": "保留一个框架容易过早收窄搜索；从 1 个增至 2 个，最后一轮四组主指标平均增加约 3.2 个百分点。继续增至 3 个多数收益较小，主设置取 2。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "Retained-harness sensitivity. Fig. 3a studies how the survivor pool size affects harness evolution. Retaining a single harness is often too restrictive: at the final round, increasing from k = 1 to k = 2 improves the main metric by 3 . 6% on ToolHop, 0 . 7% on SearchQA, 6 . 0% on TMDB, and 2 . 6% on API-Bank, averaging 3 . 2% points. Further increas- ing to k = 3 brings only marginal additional gains on most benchmarks, suggesting that excessive re- tention weakens selection pressure. Across rounds, k = 2 also yields consistent improvements from R1 to R3 on the four benchmarks groups. These results indicate that a small survivor population preserves useful harness diversity while still maintaining ef- fective selection, enabling agent systems to emerge through population-level harness–policy evolution rather than one-shot scaffold optimization. Rollout-budget efficiency. Fig. 3b compares dif- ferent methods under varying rollout budgets. Har- nessForge consistently lies on or near the "
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-3a"
+            }
+          ]
+        },
+        {
+          "id": "budget",
+          "title": "图 3b · 结果与 rollout 预算",
+          "items": [
+            {
+              "text": "在所比较预算下，HarnessForge 位于或接近经验 Pareto 前沿。它把同一批轨迹用于框架诊断与策略对齐，以更充分地利用采样。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "Rollout-budget efficiency. Fig. 3b compares dif- ferent methods under varying rollout budgets. Har- nessForge consistently lies on or near the Pareto frontier across all four benchmark groups, indi- cating that the proposed co-evolution process is both performance-effective and rollout-efficient. Unlike policy-only training methods that must spend additional rollouts to explore better behav- iors under a fixed interface, HarnessForge reuses rollout evidence to improve the external harness and then aligns the policy to the selected inter- face. This allows useful structural revisions and harness-conditioned execution patterns to accumu- late across rounds, reducing the need for large-scale Base R1_A1 R1_A2 R2_A1 R2_A2 R3_A1 R3_A2 Policy Base R1_A1 R1_A2 R2_A1 R2_A2 R3_A1 R3_A2 Harness 69.30 70.18 68.42 71.05 71.05 70.18 70.18 71.05 71.93 71.93 71.05 71.05 71.05 71.93 69.30 71.05 71.05 69.30 70.18 70.18 71.05 70.18 68.42 69.30 71.93 71.93 72.81 70.18 71.93 71.93 70.18 68.42 72.81 71.05 7"
+            },
+            {
+              "text": "这里衡量的是 rollout 数量与结果的权衡，不能直接替代包含元模型调用、训练时间在内的全部计算成本比较。",
+              "kind": "interpretation",
+              "source_pages": [
+                7
+              ],
+              "quote": "Rollout-budget efficiency. Fig. 3b compares dif- ferent methods under varying rollout budgets. Har- nessForge consistently lies on or near the Pareto frontier across all four benchmark groups, indi- cating that the proposed co-evolution process is both performance-effective and rollout-efficient. Unlike policy-only training methods that must spend additional rollouts to explore better behav- iors under a fixed interface, HarnessForge reuses rollout evidence to improve the external harness and then aligns the policy to the selected inter- face. This allows useful structural revisions and harness-conditioned execution patterns to accumu- late across rounds, reducing the need for large-scale Base R1_A1 R1_A2 R2_A1 R2_A2 R3_A1 R3_A2 Policy Base R1_A1 R1_A2 R2_A1 R2_A2 R3_A1 R3_A2 Harness 69.30 70.18 68.42 71.05 71.05 70.18 70.18 71.05 71.93 71.93 71.05 71.05 71.05 71.93 69.30 71.05 71.05 69.30 70.18 70.18 71.05 70.18 68.42 69.30 71.93 71.93 72.81 70.18 71.93 71.93 70.18 68.42 72.81 71.05 7"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-3b"
+            }
+          ]
+        },
+        {
+          "id": "compatibility",
+          "title": "图 4 · 为什么必须成对适配？",
+          "items": [
+            {
+              "text": "API-Bank 的匹配组合从 **69.30%** 升至 **77.19%**。最终框架搭配旧策略平均只有 71.93%；最终策略搭配旧框架平均为 71.06%。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "Adaptation necessity analysis. Fig. 4 evaluates all cross-combinations of evolved harnesses and policy adapters on API-Bank. Along the matched diagonal, performance improves from 69 . 30% for the base pair to 77 . 19% for the final pair. Moreover, the final harness paired with earlier policies aver- ages only 71 . 93% , and the final policy paired with earlier harnesses averages only 71 . 06% . These gaps indicate that HarnessForge does not simply produce independently stronger components, but instead reveals pair-specific compatibility gains. It induces harness-conditioned policy specialization, making matched harness–policy pairs substantially more effective than mismatched combinations. Ad- ditional compatibility matrices and detailed analy- sis are provided in App. G.1. "
+            },
+            {
+              "text": "交叉配对的退化支持“组合专属的兼容性收益”，不宜把进步全部归因于独立组件变强。",
+              "kind": "interpretation",
+              "source_pages": [
+                7
+              ],
+              "quote": "These gaps indicate that HarnessForge does not simply produce independently stronger components, but instead reveals pair-specific compatibility gains. It induces harness-conditioned policy specialization, making matched harness–policy pairs substantially more effective than mismatched combinations. Ad- ditional compatibility matrices and detailed analy- sis are provided in App. G.1. "
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-4"
+            }
+          ],
+          "emphasis": true
+        },
+        {
+          "id": "training",
+          "title": "表 3 · 更换策略训练方法的代价",
+          "items": [
+            {
+              "text": "同一框架可使用 SFT、GRPO 或 RLOO。第 3 轮 ToolHop 答案正确率从 SFT 的 50.77% 增至 GRPO 的 52.31%，但 rollout 从 **12.0K 增至 45.6K**。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "Training-method agnosticism. HarnessForge is not tied to a specific policy-training method. In the main experiments, we use supervised fine-tuning (SFT) as the default instantiation because it di- rectly internalizes harness-induced execution pat- terns from curated trajectories. Tab. 3 compares SFT, GRPO, and RLOO within the same harness– policy co-evolution framework. Across rounds, replacing SFT with GRPO or RLOO further im- proves several metrics, e.g., in Round 3 GRPO improves ToolHop answer accuracy from 50.77% to 52.31%, while RLOO improves API-Bank suc- cess from 71.05% to 72.80%. These gains, how- ever, require substantially larger rollout budgets: Round-3 RL-style instantiations use 45.6K rollouts compared with 12.0K for SFT. This suggests that HarnessForge’s framework-level gains are not spe- cific to SFT, while SFT remains a rollout-efficient default and RL-style objectives provide additional improvement potential at higher cost. 4.5 Case Study Fig. 5 visualizes a represent"
+            },
+            {
+              "text": "表 3 是训练方式分析设置，数值不等同于表 1 的主设置。更高性能伴随更高采样开销，SFT 因复用成功轨迹而成为默认实现。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "Table 3: Training agnostic analysis. We evaluate Har- nessForge+SFT, HarnessForge+GRPO, and Harness- Forge+RLOO on ToolHop, and report API-Bank as an auxiliary transfer/evaluation setting. Round Training ToolHop API-Bank Budget (K) Ans. Path Succ. Path API. 1 SFT 45.13 60.66 69.30 74.85 73.05 2.40 GRPO 45.64 59.49 70.18 76.02 74.47 7.20 RLOO 46.67 61.17 70.18 75.73 73.76 7.20 2 SFT 48.72 63.70 71.05 75.15 75.89 5.60 GRPO 49.23 64.28 69.30 76.90 73.76 20.00 RLOO 49.74 63.80 71.05 77.78 75.18 20.00 3 SFT 50.77 65.87 71.05 76.90 75.18 12.00 GRPO 52.31 67.32 71.93 77.78 75.18 45.60 RLOO 51.28 66.45 72.80 79.09 76.60 45.60 Training-method agnosticism. HarnessForge is not tied to a specific policy-training method. In the main experiments, we use supervised fine-tuning (SFT) as the default instantiation because it di- rectly internalizes harness-induced execution pat- terns from curated trajectories. Tab. 3 compares SFT, GRPO, and RLOO within the same harness– policy co-evolution framework. A"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "table-3"
+            }
+          ]
+        },
+        {
+          "id": "lineage",
+          "title": "图 5 · 一条系统谱系如何逐轮变好？",
+          "items": [
+            {
+              "text": "示例先增加工具 schema 检查与可靠的记忆暴露，再引入证据记录和答案支持检查，最后改进失败相关记忆检索。每次框架调整之后都进行适配器更新。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "Fig. 5 visualizes a representative ToolHop lineage of HarnessForge across three harness–policy co- evolution rounds. Starting from the base agent, Round 1 improves task decomposition and mem- ory exposure by introducing finer-grained sub- goals, and more consistent context injection, yield- ing a 2 . 14% performance gain and the subse- quent adapter alignment further contributes 1 . 57% . Round 2 focuses on planning and action reliability, followed by a matched adapter update that together adds 2 . 51% and 2 . 10% . Round 3 targets memory retrieval, improving retrieval relevance, reducing noisy memory access with the final adapter update adding another 0 . 94% and 1 . 11% . This lineage shows that HarnessForge’s performance improves progressively as the harness is tailored and the pol- icy is aligned to the evolving execution interface. Additional case studies are provided in App. G.3. 5 Conclusion We introduced HarnessForge, a meta-adaptive framework that reformulates LLM agent adapta"
+            },
+            {
+              "text": "图中一次次增益展示交替演化过程；它是一条代表性谱系，不代表所有任务、每条候选分支都会单调提升。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "Fig. 5 visualizes a representative ToolHop lineage of HarnessForge across three harness–policy co- evolution rounds. Starting from the base agent, Round 1 improves task decomposition and mem- ory exposure by introducing finer-grained sub- goals, and more consistent context injection, yield- ing a 2 . 14% performance gain and the subse- quent adapter alignment further contributes 1 . 57% . Round 2 focuses on planning and action reliability, followed by a matched adapter update that together adds 2 . 51% and 2 . 10% . Round 3 targets memory retrieval, improving retrieval relevance, reducing noisy memory access with the final adapter update adding another 0 . 94% and 1 . 11% . This lineage shows that HarnessForge’s performance improves progressively as the harness is tailored and the pol- icy is aligned to the evolving execution interface. Additional case studies are provided in App. G.3. 5 Conclusion We introduced HarnessForge, a meta-adaptive framework that reformulates LLM agent adapta"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "limitations",
+      "title": "局限",
+      "summary": {
+        "text": "结果主要来自中小规模 Qwen 模型和受约束的编辑空间；长程执行成本与更大模型上的收益仍是边界。",
+        "kind": "paper",
+        "source_pages": [
+          9
+        ],
+        "quote": "Limitations HarnessForge is primarily evaluated with Qwen3- 4B and Qwen3-8B backbones. This setting is im- portant for resource-constrained agent deployment, where the coupling between the external harness and the internal policy is especially salient: the harness can provide structural support for limited model capabilities, while the policy must learn to execute the harness-induced paradigm. Whether the same magnitude of harness–policy compatibil- ity gains holds for substantially larger frontier-scale models remains an open direction. HarnessForge also requires repeated rollouts for harness profiling, selection, and policy alignment. Although our design reuses rollout trajectories across harness evolution and policy alignment to improve rollout efficiency, long-horizon environ- ments can still make the evolution process costly. Future work could reduce this cost through proxy evaluation, adaptive rollout allocation, or learned early-stopping criteria. Finally, the HarnessForge curre"
+      },
+      "sections": [
+        {
+          "id": "scale",
+          "title": "规模与任务覆盖",
+          "items": [
+            {
+              "text": "实验主要使用 Qwen3-4B、8B。框架为有限模型能力提供的结构支持，是否同样有利于更大前沿模型，尚未验证。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "HarnessForge is primarily evaluated with Qwen3- 4B and Qwen3-8B backbones. This setting is im- portant for resource-constrained agent deployment, where the coupling between the external harness and the internal policy is especially salient: the harness can provide structural support for limited model capabilities, while the policy must learn to execute the harness-induced paradigm. Whether the same magnitude of harness–policy compatibil- ity gains holds for substantially larger frontier-scale models remains an open direction. HarnessForge also requires repeated rollouts for harness profiling, selection, and policy alignment. Although our design reuses rollout trajectories across harness evolution and policy alignment to improve rollout efficiency, long-horizon environ- ments can still make the evolution process costly. Future work could reduce this cost through proxy evaluation, adaptive rollout allocation, or learned early-stopping criteria. Finally, the HarnessForge currently uses a "
+            }
+          ]
+        },
+        {
+          "id": "cost",
+          "title": "重复评估仍然昂贵",
+          "items": [
+            {
+              "text": "轨迹虽然被复用，但框架诊断、筛选与对齐仍需多轮执行；长时程环境会使整个演化流程昂贵。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "HarnessForge also requires repeated rollouts for harness profiling, selection, and policy alignment. Although our design reuses rollout trajectories across harness evolution and policy alignment to improve rollout efficiency, long-horizon environ- ments can still make the evolution process costly. Future work could reduce this cost through proxy evaluation, adaptive rollout allocation, or learned early-stopping criteria. Finally, the HarnessForge currently uses a struc- tured meta-evolution protocol with constrained edit operators over planning, action, and memory com- ponents. This design improves executability and makes the evolution process auditable, but it does not exhaustively explore the full space of possible agent-system implementations, such as arbitrary code-level harness rewrites, new tool abstractions, or learned verifier modules. Future work could ex- tend the operator space and study cost-aware meta- evolution with alternative closed- or open-source meta-agents. "
+            }
+          ]
+        },
+        {
+          "id": "space",
+          "title": "编辑空间与方法边界",
+          "items": [
+            {
+              "text": "当前只在计划、动作、记忆组件内受约束地修改，利于可执行性与审计，却没有遍历任意代码级重写、新工具抽象或学习型验证器。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "Finally, the HarnessForge currently uses a struc- tured meta-evolution protocol with constrained edit operators over planning, action, and memory com- ponents. This design improves executability and makes the evolution process auditable, but it does not exhaustively explore the full space of possible agent-system implementations, such as arbitrary code-level harness rewrites, new tool abstractions, or learned verifier modules. Future work could ex- tend the operator space and study cost-aware meta- evolution with alternative closed- or open-source meta-agents. "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "future_work",
+      "title": "未来展望",
+      "summary": {
+        "text": "作者提出扩大模型与编辑空间，并用更节省成本的评估和元智能体提高演化效率。",
+        "kind": "paper",
+        "source_pages": [
+          9
+        ],
+        "quote": "Future work could reduce this cost through proxy evaluation, adaptive rollout allocation, or learned early-stopping criteria. Finally, the HarnessForge currently uses a struc- tured meta-evolution protocol with constrained edit operators over planning, action, and memory com- ponents. This design improves executability and makes the evolution process auditable, but it does not exhaustively explore the full space of possible agent-system implementations, such as arbitrary code-level harness rewrites, new tool abstractions, or learned verifier modules. Future work could ex- tend the operator space and study cost-aware meta- evolution with alternative closed- or open-source meta-agents. "
+      },
+      "sections": [
+        {
+          "id": "directions",
+          "title": "作者明确提出的方向",
+          "items": [
+            {
+              "text": "用代理评估、自适应 rollout 分配或学习型提前停止降低搜索成本。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "Future work could reduce this cost through proxy evaluation, adaptive rollout allocation, or learned early-stopping criteria. Finally, the HarnessForge currently uses a struc- tured meta-evolution protocol with constrained edit operators over planning, action, and memory com- ponents. This design improves executability and makes the evolution process auditable, but it does not exhaustively explore the full space of possible agent-system implementations, such as arbitrary code-level harness rewrites, new tool abstractions, or learned verifier modules. Future work could ex- tend the operator space and study cost-aware meta- evolution with alternative closed- or open-source meta-agents. "
+            },
+            {
+              "text": "扩展可编辑算子，研究不同闭源／开源元智能体下的成本感知演化，并检验更大模型上的配对收益。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "Finally, the HarnessForge currently uses a struc- tured meta-evolution protocol with constrained edit operators over planning, action, and memory com- ponents. This design improves executability and makes the evolution process auditable, but it does not exhaustively explore the full space of possible agent-system implementations, such as arbitrary code-level harness rewrites, new tool abstractions, or learned verifier modules. Future work could ex- tend the operator space and study cost-aware meta- evolution with alternative closed- or open-source meta-agents. "
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,784 @@
+{
+  "title": "Attention Is All You Need",
+  "subtitle": "Transformer：用注意力连接序列中的每个位置",
+  "source_label": "Vaswani et al. · NeurIPS 2017 · arXiv:1706.03762v7",
+  "chapters": [
+    {
+      "id": "background",
+      "title": "背景",
+      "summary": {
+        "text": "**核心问题：如何同时提高训练并行性与远距离信息交互能力？** Transformer 用注意力构建编码器和解码器，在机器翻译中验证效果。",
+        "kind": "paper",
+        "source_pages": [
+          1
+        ],
+        "quote": "We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Exper"
+      },
+      "sections": [
+        {
+          "id": "task",
+          "title": "任务设定：从输入序列生成输出序列",
+          "items": [
+            {
+              "text": "机器翻译属于**序列转换**：输入是源语言符号序列，输出是目标语言符号序列。编码器先构造输入表示，解码器再据此逐步生成输出。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Most competitive neural sequence transduction models have an encoder-decoder structure [5, 2, 35].\nHere, the encoder maps an input sequence of symbol representations   ( x 1 , ..., x n )   to a sequence\nof continuous representations   z   = ( z 1 , ..., z n ) .   Given   z , the decoder then generates an output\nsequence   ( y 1 , ..., y m )   of symbols"
+            },
+            {
+              "text": "此前的主流模型沿词的位置依次计算隐藏状态。论文关注的不仅是翻译质量，也包括这种计算方式带来的训练效率约束。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Recurrent models typically factor computation along the symbol positions of the input and output\nsequences. Aligning the positions to steps in computation time, they generate a sequence of hidden\nstates   h t , as a function of the previous hidden state   h t − 1   and the input for position   t . This inherently\nsequential nature precludes parallelization within training examples, which becomes critical at longer\nsequence lengths, as memory constraints limit batching across examples. Recent work has achieved\nsignificant improvements in computational efficiency through factorization tricks [21] and conditional\ncomputation [32], while also imp"
+            }
+          ]
+        },
+        {
+          "id": "problem",
+          "title": "瓶颈：序列计算必须逐步等待",
+          "items": [
+            {
+              "text": "**RNN 的顺序依赖。** 后一个隐藏状态依赖前一个状态，单个样本内难以并行；长序列还会限制批处理规模。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "This inherently sequential nature precludes parallelization within training examples, which becomes critical at longer sequence lengths, as memory constraints l"
+            },
+            {
+              "text": "**新的切入点。** 注意力已经能关联远处信息，但当时多数模型仍将它附加在 RNN 上。本文让注意力直接承担序列表示构建。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Attention mechanisms have become an integral part of compelling sequence modeling and transduc- tion models in various tasks, allowing modeling of dependencies"
+            }
+          ],
+          "tone": "red"
+        },
+        {
+          "id": "contribution",
+          "title": "贡献：重组整个序列转换架构",
+          "items": [
+            {
+              "text": "保留编码器—解码器框架，组合**多头注意力、逐位置前馈网络、位置编码**，去掉序列对齐的循环与卷积。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "To the best of our knowledge, however, the Transformer is the first transduction model relying entirely on self-attention to compute representations of its inpu"
+            },
+            {
+              "text": "大模型的英德 / 英法翻译达到 **28.4 / 41.8 BLEU**（摘要与表 2）；英语成分句法分析提供了任务迁移证据。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Our model achieves 28.4 BLEU on the WMT 2014 English- to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU."
+            }
+          ],
+          "tone": "green"
+        }
+      ]
+    },
+    {
+      "id": "related_work",
+      "title": "相关工作",
+      "summary": {
+        "text": "**创新在于架构组合。** 自注意力此前已用于多种任务；本文将其作为序列表示的主要机制，并改变了信息交互路径。",
+        "kind": "paper",
+        "source_pages": [
+          2
+        ],
+        "quote": "Self-attention, sometimes called intra-attention is an attention mechanism relating different positions of a single sequence in order to compute a representatio"
+      },
+      "sections": [
+        {
+          "id": "routes",
+          "title": "三条路线，三种信息传递方式",
+          "items": [
+            {
+              "text": "**循环｜RNN / LSTM / GRU。** 广泛用于语言建模和机器翻译。编码器表示输入，解码器逐步输出；跨序列注意力使解码器能按需读取源位置，但循环计算的顺序约束仍在。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Recurrent neural networks, long short-term memory [13] and gated recurrent [7] neural networks in particular, have been firmly established as state of the art a"
+            },
+            {
+              "text": "**卷积｜ByteNet / ConvS2S。** 可并行计算各位置表示；远距离词之间的信息传递需要跨越多层，路径随位置距离增长，增加了学习长距离依赖的难度。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "The goal of reducing sequential computation also forms the foundation of the Extended Neural GPU [16], ByteNet [18] and ConvS2S [9], all of which use convolutio"
+            },
+            {
+              "text": "**自注意力｜已有基础。** 直接关联同一序列中的不同位置，已用于阅读理解、摘要、文本蕴含和句子表示；记忆网络也采用注意力机制。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Self-attention, sometimes called intra-attention is an attention mechanism relating different positions of a single sequence in order to compute a representatio"
+            }
+          ]
+        },
+        {
+          "id": "difference",
+          "title": "本文的区别：改变信息交互路径",
+          "items": [
+            {
+              "text": "自注意力让任意两个位置在一层内建立联系；加权平均可能降低有效分辨率，论文用**多头机制**缓解这一问题。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "albeit at the cost of reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as described"
+            },
+            {
+              "text": "作者强调的创新是：完全依赖自注意力构造输入、输出表示的序列转换架构，不再使用序列对齐的循环或卷积。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "the Transformer is the first transduction model relying entirely on self-attention to compute representations of its input and output without using sequence- al"
+            }
+          ],
+          "tone": "green",
+          "emphasis": true
+        }
+      ]
+    },
+    {
+      "id": "method",
+      "title": "方法",
+      "summary": {
+        "text": "**先跨位置交换信息，再在位置内做非线性变换。** 编码器整合源句，解码器结合目标前缀与源句表示预测下一个词。",
+        "kind": "paper",
+        "source_pages": [
+          3
+        ],
+        "quote": "The Transformer follows this overall architecture using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder, shown in"
+      },
+      "sections": [
+        {
+          "id": "architecture",
+          "title": "图 1 · 编码器—解码器",
+          "items": [
+            {
+              "text": "**base 配置：** 编码器、解码器各 6 层，$d_{\\mathrm{model}}=512$。编码器每层包含注意力与 FFN；解码器额外读取编码器输出。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "Encoder: The encoder is composed of a stack of N = 6 identical layers. Each layer has two sub-layers. The first is a multi-head self-attention mechanism, and th"
+            },
+            {
+              "text": "**信息流：** 左侧编码源句 → 右侧读取目标前缀 → 顶部预测下一个词。右移输入与掩码共同防止训练时泄露未来答案。",
+              "kind": "interpretation",
+              "source_pages": [
+                3
+              ],
+              "quote": "This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-1"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "qkv",
+          "title": "三种注意力：Q、K、V 从哪里来？",
+          "items": [
+            {
+              "text": "**编码器自注意力：** Q、K、V 来自同一源序列表示，可读取全部源位置。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "The encoder contains self-attention layers. In a self-attention layer all of the keys, values and queries come from the same place, in this case, the output of"
+            },
+            {
+              "text": "**解码器自注意力：** 读取目标前缀；未来位置的分数在 softmax 前设为 $-\\infty$。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Similarly, self-attention layers in the decoder allow each position in the decoder to attend to all positions in the decoder up to and including that position."
+            },
+            {
+              "text": "**跨注意力：** Q 来自解码器，K、V 来自编码器输出，使目标位置按需读取整个源句。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "In \"encoder-decoder attention\" layers, the queries come from the previous decoder layer, and the memory keys and values come from the output of the encoder. Thi"
+            }
+          ],
+          "tone": "green"
+        },
+        {
+          "id": "attention",
+          "title": "缩放点积：匹配 → 分配权重 → 读取",
+          "items": [
+            {
+              "text": "Q 是查询，K 用于匹配，V 承载内容。先计算查询与键的相似度，再对每个查询沿键维归一化，最后对 V 加权求和。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "We call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of queries and keys of dimension d k , and values of dimension d"
+            },
+            {
+              "text": "**为什么缩放？** 键维度较大时，点积可能使 softmax 饱和、梯度变小；除以 $\\sqrt{d_k}$ 可校正分数尺度。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "We suspect that for large values of d k , the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradi"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\mathrm{Attention}(Q,K,V)=\\mathrm{softmax}\\!\\left(\\frac{QK^{\\mathsf T}}{\\sqrt{d_k}}\\right)V",
+              "explanation": "$Q\\in\\mathbb R^{n_q\\times d_k}$，$K\\in\\mathbb R^{n_k\\times d_k}$，$V\\in\\mathbb R^{n_k\\times d_v}$；输出为 $n_q\\times d_v$。",
+              "source_pages": [
+                4
+              ],
+              "quote": "We compute the matrix of outputs as: Attention( Q, K, V ) = softmax( QK T √ d k ) V (1) The two most commonly used attention functions are additive attention [2",
+              "placement": "column"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-2"
+            }
+          ]
+        },
+        {
+          "id": "multihead",
+          "title": "多头：在不同子空间并行读取",
+          "items": [
+            {
+              "text": "每个头独立学习 Q、K、V 的线性投影；各头结果拼接后，经 $W^O$ 投回模型维度。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Instead of performing a single attention function with d model -dimensional keys, values and queries, we found it beneficial to linearly project the queries, ke"
+            },
+            {
+              "text": "base 使用 $h=8$，$d_k=d_v=64$。各头维度较小，使总计算量与全维度单头相近。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "In this work we employ h = 8 parallel attention layers, or heads. For each of these we use d k = d v = d model /h = 64 . Due to the reduced dimension of each he"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\begin{gathered}\\mathrm{head}_i\\\\=\\mathrm{Attention}(QW_i^Q,KW_i^K,VW_i^V)\\\\[3pt]\\mathrm{MultiHead}(Q,K,V)\\\\=\\mathrm{Concat}(\\mathrm{head}_1,\\ldots,\\mathrm{head}_h)W^O\\end{gathered}",
+              "explanation": "$W_i^Q,W_i^K,W_i^V$ 为各头投影；$W^O$ 为输出投影。",
+              "source_pages": [
+                5
+              ],
+              "quote": "Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions. With a single attention h",
+              "placement": "column"
+            }
+          ]
+        },
+        {
+          "id": "ffn",
+          "title": "FFN 与残差：位置内变换、逐层堆叠",
+          "items": [
+            {
+              "text": "FFN 在每个位置独立应用两层线性变换和 ReLU。同层跨位置共享参数，不同层参数不同；base 的 $d_{\\mathrm{ff}}=2048$。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "each of the layers in our encoder and decoder contains a fully connected feed-forward network, which is applied to each position separately and identically. Thi"
+            },
+            {
+              "text": "原版采用 **Post-LN**：先做残差相加，再做层归一化。",
+              "kind": "interpretation",
+              "source_pages": [
+                3
+              ],
+              "quote": "followed by layer normalization [1]. That is, the output of each sub-layer is LayerNorm( x + Sublayer( x )) , where Sublayer( x ) is the function implemented by"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\mathrm{FFN}(x)=\\max(0,xW_1+b_1)W_2+b_2",
+              "explanation": "$x$ 为单个位置的表示；先扩维，再投回 $d_{\\mathrm{model}}$。",
+              "source_pages": [
+                5
+              ],
+              "quote": "This consists of two linear transformations with a ReLU activation in between. FFN( x ) = max(0 , xW 1 + b 1 ) W 2 + b 2 (2) While the linear transformations ar",
+              "placement": "column"
+            },
+            {
+              "latex": "\\mathrm{LayerNorm}\\!\\left(x+\\mathrm{Sublayer}(x)\\right)",
+              "explanation": "Sublayer 为注意力或 FFN；残差两端维度一致。",
+              "source_pages": [
+                3
+              ],
+              "quote": "the output of each sub-layer is LayerNorm( x + Sublayer( x )) , where Sublayer( x ) is the function implemented by the sub-layer itself. To facilitate these res",
+              "placement": "column"
+            }
+          ]
+        },
+        {
+          "id": "position",
+          "title": "位置编码：把词序加入表示",
+          "items": [
+            {
+              "text": "词嵌入与同维度的位置编码相加；本文采用不同频率的正弦、余弦。",
+              "kind": "paper",
+              "source_pages": [
+                6
+              ],
+              "quote": "we must inject some information about the relative or absolute position of the tokens in the sequence. To this end, we add \"positional encodings\" to the input e"
+            },
+            {
+              "text": "作者假设这种编码便于学习相对位置，并可能外推到更长序列。实验只显示它与学习式编码效果接近。",
+              "kind": "paper",
+              "source_pages": [
+                6
+              ],
+              "quote": "We chose this function because we hypothesized it would allow the model to easily learn to attend by relative positions, since for any fixed offset k , P E pos"
+            },
+            {
+              "text": "输入 / 输出嵌入与 softmax 前线性层共享权重；嵌入权重乘以 $\\sqrt{d_{\\mathrm{model}}}$。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "In our model, we share the same weight matrix between the two embedding layers and the pre-softmax linear transformation, similar to [30]. In the embedding laye"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\begin{aligned}\\mathrm{PE}_{(pos,2i)}&=\\sin\\!\\left(pos/10000^{2i/d_{\\mathrm{model}}}\\right)\\\\\\mathrm{PE}_{(pos,2i+1)}&=\\cos\\!\\left(pos/10000^{2i/d_{\\mathrm{model}}}\\right)\\end{aligned}",
+              "explanation": "$pos$ 为位置；$i$ 为维度对索引。偶数维用 sin，奇数维用 cos。",
+              "source_pages": [
+                6
+              ],
+              "quote": "we use sine and cosine functions of different frequencies: P E ( pos, 2 i ) = sin ( pos/ 10000 2 i/d model ) P E ( pos, 2 i +1) = cos ( pos/ 10000 2 i/d model )",
+              "placement": "column"
+            }
+          ],
+          "tone": "gold"
+        },
+        {
+          "id": "complexity",
+          "title": "表 1 · 并行性与路径长度",
+          "items": [
+            {
+              "text": "自注意力每层计算量为 $O(n^2d)$，顺序操作数与最长路径均为 $O(1)$。表中比较的是**层内计算**，不代表自回归生成无需逐步执行。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "Maximum path lengths, per-layer complexity and minimum number of sequential operations for different layer types. n is the sequence length, d is the representat"
+            },
+            {
+              "text": "当 $n<d$ 时计算优势更明显。长序列的两两交互代价较高；局部注意力可降低开销，但会延长信息路径。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "very long sequences, self-attention could be restricted to considering only a neighborhood of size r in the input sequence centered around the respective output"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "table-1"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "parallel",
+          "title": "关键区分：训练并行，生成仍逐词",
+          "items": [
+            {
+              "text": "训练时目标序列已知，可用因果掩码并行计算各位置；生成时下一个词依赖已有输出，**原版 Transformer 仍是自回归模型**。",
+              "kind": "interpretation",
+              "source_pages": [
+                2
+              ],
+              "quote": "At each step the model is auto-regressive [10], consuming the previously generated symbols as additional input when generating the next. 2"
+            }
+          ],
+          "tone": "gold",
+          "emphasis": true
+        }
+      ]
+    },
+    {
+      "id": "experiments",
+      "title": "实验",
+      "summary": {
+        "text": "**翻译、消融、句法分析**分别检验模型效果、组件作用与任务迁移。",
+        "kind": "paper",
+        "source_pages": [
+          8
+        ],
+        "quote": "Table 2 summarizes our results and compares our translation quality and training costs to other model architectures from the literature. We estimate the number"
+      },
+      "sections": [
+        {
+          "id": "training",
+          "title": "训练配置：数据、规模与预算",
+          "items": [
+            {
+              "text": "**数据。** 英德约 450 万句对、3.7 万共享 BPE 词表；英法 3600 万句、3.2 万 word-piece 词表。每批约含 2.5 万源 token 与 2.5 万目标 token。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "We trained on the standard WMT 2014 English-German dataset consisting of about 4.5 million sentence pairs. Sentences were encoded using byte-pair encoding [3],"
+            },
+            {
+              "text": "**预算。** 单机 8 张 P100；base 训练 10 万步、约 12 小时，big 训练 30 万步、约 3.5 天。",
+              "kind": "paper",
+              "source_pages": [
+                7,
+                9
+              ],
+              "quote": "We trained our models on one machine with 8 NVIDIA P100 GPUs. For our base models using the hyperparameters described throughout the paper, each training step t"
+            },
+            {
+              "text": "**规模。** base / big：模型维度 512 / 1024，FFN 维度 2048 / 4096，头数 8 / 16；参数量约 6500 万 / 2.13 亿。两者均为 6 层。",
+              "kind": "interpretation",
+              "source_pages": [
+                9
+              ],
+              "quote": "base 6 512 2048 8 64 64 0.1 0.1 100K 4.92 25.8 65 (A) 1 512 512 5.29 24.9 4 128 128 5.00 25.5 16 32 32 4.91 25.8 32 16 16 5.01 25.4 (B) 16 5.16 25.1 58 32 5.01"
+            }
+          ]
+        },
+        {
+          "id": "optimization",
+          "title": "训练细节：学习率与正则化",
+          "items": [
+            {
+              "text": "Adam：$\\beta_1=0.9$、$\\beta_2=0.98$、$\\epsilon=10^{-9}$。学习率先线性升高，再随步数平方根的倒数衰减。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "We used the Adam optimizer [20] with β 1 = 0 . 9 , β 2 = 0 . 98 and ϵ = 10 − 9 . We varied the learning rate over the course of training, according to the formu"
+            },
+            {
+              "text": "base 的 dropout 为 0.1，作用于子层输出及嵌入之和；标签平滑为 0.1。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "Residual Dropout We apply dropout [33] to the output of each sub-layer, before it is added to the sub-layer input and normalized. In addition, we apply dropout"
+            }
+          ],
+          "tone": "gold",
+          "formulas": [
+            {
+              "latex": "\\mathrm{lrate}=d_{\\mathrm{model}}^{-1/2}\\min\\!\\left(s^{-1/2},\\;s\\,w^{-3/2}\\right)",
+              "explanation": "$s$ 为训练步数，$w=4000$ 为 warmup 步数。",
+              "source_pages": [
+                7
+              ],
+              "quote": "We varied the learning rate over the course of training, according to the formula: lrate = d − 0 . 5 model · min( step _ num − 0 . 5 , step _ num · warmup _ ste",
+              "placement": "column"
+            }
+          ]
+        },
+        {
+          "id": "protocol",
+          "title": "比较前先核对评估协议",
+          "items": [
+            {
+              "text": "**表 2｜newstest2014。** base / big 分别平均最后 5 / 20 个 checkpoint；beam=4，长度惩罚 $\\alpha=0.6$，最大输出为输入长度 +50。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "For the base models, we used a single model obtained by averaging the last 5 checkpoints, which were written at 10-minute intervals. For the big models, we aver"
+            },
+            {
+              "text": "**表 3｜newstest2013。** 不做 checkpoint 平均。因此消融基准的 25.8 与测试集的 27.3 BLEU 不能直接相减解释。",
+              "kind": "interpretation",
+              "source_pages": [
+                9
+              ],
+              "quote": "development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. In Ta"
+            }
+          ]
+        },
+        {
+          "id": "translation",
+          "title": "表 2 · 主要翻译结果",
+          "items": [
+            {
+              "text": "**big：28.4 / 41.8 BLEU。** 英德超过表中已有单模型与集成结果；base 为 27.3 / 38.1，不能把它的英法结果也描述成全面领先。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "Transformer (base model) 27.3 38.1 3 . 3 · 10 18 Transformer (big) 28.4 41.8 2 . 3 · 10 19 Residual Dropout We apply dropout [33] to the output of each sub-laye"
+            },
+            {
+              "text": "训练成本约为 base $3.3\\times10^{18}$、big $2.3\\times10^{19}$ FLOPs。该值来自估算，并非统一硬件上的耗时对照。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "We estimate the number of floating point operations used to train a model by multiplying the training time, the number of GPUs used, and an estimate of the sust"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "table-2"
+            }
+          ],
+          "media_first": true,
+          "tone": "green"
+        },
+        {
+          "id": "discrepancy",
+          "title": "原文差异与任务专属配置",
+          "items": [
+            {
+              "text": "**英法 BLEU：** 摘要与表 2 报告 41.8，正文 §6.1 写作 41.0，两处数值不一致。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "On the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of 41 . 0 , outperforming all of the previously published single models,"
+            },
+            {
+              "text": "英法 big 的 dropout 为 0.1，而非一般 big 配置的 0.3。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "used dropout rate P drop = 0 . 1 , instead of 0 . 3 . For the base models, we used a single model obtained by averaging the last 5 checkpoints, which were writt"
+            }
+          ],
+          "tone": "red",
+          "emphasis": true
+        },
+        {
+          "id": "ablation",
+          "title": "表 3 · 哪些设计起作用？",
+          "items": [
+            {
+              "text": "**多头有效，但越多未必越好。** 单头为 24.9，8 头为 25.8 BLEU；键维度过小会损伤结果。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "In Table 3 rows (A), we vary the number of attention heads and the attention key and value dimensions, keeping the amount of computation constant, as described"
+            },
+            {
+              "text": "**正则化有帮助。** 去掉 dropout 降至 24.6；去掉标签平滑，PPL 改善到 4.67，但 BLEU 从 25.8 降至 25.3。",
+              "kind": "interpretation",
+              "source_pages": [
+                9
+              ],
+              "quote": "(D) 0.0 5.77 24.6 0.2 4.95 25.5 0.0 4.67 25.3 0.2 5.47 25.7 (E) positional embedding instead of sinusoids 4.92 25.7 big 6 1024 4096 16 0.3 300K 4.33 26.4 213 de"
+            },
+            {
+              "text": "**位置编码选择相近。** 学习式为 25.7，正弦式为 25.8 BLEU。PPL 按 word-piece 计算。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "perplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to per-word perplexities. N d model d ff h d k d v P drop ϵ ls t"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "table-3"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "parsing",
+          "title": "表 4 · 迁移到英语成分句法分析",
+          "items": [
+            {
+              "text": "使用 4 层、$d_{\\mathrm{model}}=1024$ 的模型。WSJ 监督数据约 4 万句；半监督另有约 1700 万句。评估为 WSJ Section 23 的 F1。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "We trained a 4-layer transformer with d model = 1024 on the Wall Street Journal (WSJ) portion of the Penn Treebank [25], about 40K training sentences. We also t"
+            },
+            {
+              "text": "Transformer 的 WSJ-only / 半监督结果为 **91.3 / 92.7 F1**。其他训练或建模设置仍有 93.0、93.3；证据支持迁移潜力，不能概括成所有设置下最佳。",
+              "kind": "interpretation",
+              "source_pages": [
+                10
+              ],
+              "quote": "Transformer (4 layers) WSJ only, discriminative 91.3 Zhu et al. (2013) [40] semi-supervised 91.3 Huang & Harper (2009) [14] semi-supervised 91.3 McClosky et al."
+            },
+            {
+              "text": "该任务用 beam=21、$\\alpha=0.3$，最大输出为输入长度 +300；与翻译配置不同。",
+              "kind": "paper",
+              "source_pages": [
+                10
+              ],
+              "quote": "We used a beam size of 21 and α = 0 . 3 for both WSJ only and the semi-supervised setting. Our results in Table 4 show that despite the lack of task-specific tu"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "table-4"
+            }
+          ],
+          "media_first": true,
+          "tone": "green"
+        }
+      ]
+    },
+    {
+      "id": "limitations",
+      "title": "局限",
+      "summary": {
+        "text": "**自注意力减少了层内顺序操作，但长序列计算与逐词生成仍是约束。**",
+        "kind": "interpretation",
+        "source_pages": [
+          10
+        ],
+        "quote": "7 Conclusion In this work, we presented the Transformer, the first sequence transduction model based entirely on attention, replacing the recurrent layers most"
+      },
+      "sections": [
+        {
+          "id": "cost",
+          "title": "长序列：短路径仍有计算代价",
+          "items": [
+            {
+              "text": "全局自注意力计算量随 $n^2$ 增长。局部化可以降低开销，但最长路径会增至 $O(n/r)$。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "To improve computational performance for tasks involving very long sequences, self-attention could be restricted to considering only a neighborhood of size r in"
+            },
+            {
+              "text": "结构上的短路径不保证在所有长度、任务和硬件上都更快。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "One is the total computational complexity per layer. Another is the amount of computation that can be parallelized, as measured by the minimum number of sequent"
+            }
+          ],
+          "tone": "red"
+        },
+        {
+          "id": "generation",
+          "title": "推理：输出仍然有顺序依赖",
+          "items": [
+            {
+              "text": "生成下一个词时仍要读取已有输出。训练并行性的提升不能直接等同于推理延迟的同等改善。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "At each step the model is auto-regressive [10], consuming the previously generated symbols as additional input when generating the next. 2"
+            }
+          ],
+          "tone": "red"
+        },
+        {
+          "id": "coverage",
+          "title": "结论：注意任务与比较范围",
+          "items": [
+            {
+              "text": "直接证据覆盖两项翻译任务和英语句法分析；图像、音频、视频属于未来计划。",
+              "kind": "interpretation",
+              "source_pages": [
+                10
+              ],
+              "quote": "We plan to extend the Transformer to problems involving input and output modalities other than text and to investigate local, restricted attention mechanisms to"
+            },
+            {
+              "text": "base 与 big 同时改变规模、预算和正则；结果不能全部归因于某个单独部件。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "We estimate the number of floating point operations used to train a model by multiplying the training time, the number of GPUs used, and an estimate of the sust"
+            },
+            {
+              "text": "正弦编码的长序列外推只是可能性，正文未给出系统的超长输入验证。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "because it may allow the model to extrapolate to sequence lengths longer than the ones encountered during training. 4 Why Self-Attention In this section we comp"
+            }
+          ],
+          "tone": "red"
+        }
+      ]
+    },
+    {
+      "id": "future_work",
+      "title": "未来展望",
+      "summary": {
+        "text": "作者提出三条方向：**扩展任务与模态、研究局部注意力、减少生成的顺序性**。",
+        "kind": "paper",
+        "source_pages": [
+          10
+        ],
+        "quote": "We are excited about the future of attention-based models and plan to apply them to other tasks. We plan to extend the Transformer to problems involving input a"
+      },
+      "sections": [
+        {
+          "id": "directions",
+          "title": "作者明确提出的方向",
+          "items": [
+            {
+              "text": "**扩展应用。** 将 Transformer 用于更多任务，以及图像、音频、视频等输入输出。",
+              "kind": "paper",
+              "source_pages": [
+                10
+              ],
+              "quote": "problems involving input and output modalities other than text and to investigate local, restricted attention mechanisms to efficiently handle large inputs and"
+            },
+            {
+              "text": "**处理大序列。** 研究局部、受限注意力，兼顾计算效率与远距离信息传递。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "restricted to considering only a neighborhood of size r in the input sequence centered around the respective output position. This would increase the maximum pa"
+            },
+            {
+              "text": "**减少串行生成。** 正文提出研究目标，但没有给出完成的非自回归方案。",
+              "kind": "paper",
+              "source_pages": [
+                10
+              ],
+              "quote": "Making generation less sequential is another research goals of ours. The code we used to train and evaluate our models is available at https://github.com/ tenso"
+            }
+          ],
+          "tone": "green"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "content": "content.json",
+  "assets": "assets.json",
+  "source": "source.json",
+  "pdf": "../../work/harnessforge/paper.pdf",
+  "output": "../../output/pdf/harnessforge",
+  "filename": "harnessforge.pdf",
+  "category": [
+    "智能体",
+    "系统自适应"
+  ]
+}

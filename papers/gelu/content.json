@@ -1,0 +1,532 @@
+{
+  "title": "Gaussian Error Linear Units (GELUs)",
+  "subtitle": "GELU：按输入大小连续加权的激活函数",
+  "source_label": "Dan Hendrycks · Kevin Gimpel · arXiv:1606.08415v5",
+  "chapters": [
+    {
+      "id": "background",
+      "title": "背景",
+      "summary": {
+        "text": "**研究问题：能否把激活函数与随机门控的思路结合起来？** GELU 从依赖输入的随机掩码出发，取其期望，得到可直接用于神经网络的确定性激活函数。",
+        "kind": "paper",
+        "source_pages": [
+          1
+        ],
+        "quote": "In this work, we introduce a new nonlinearity, the Gaussian Error Linear Unit (GELU). It relates\nto stochastic regularizers in that it is the expectation of a modification to Adaptive Dropout (Ba &\nFrey, 2013). This suggests a more probabilistic view of a neuron’s output. We find that this novel\nnonlinearity matches or exceeds models with ReLUs or ELUs across tasks from computer vision,\nnatural language processing, and automatic speech recognition. \n2   GELU F ORMULATION \nWe motivate our activation function by combining properties from dropout, zoneout, and ReLUs.\nFirst note that a ReLU and dropout both yield a neuron’s output with the ReLU deterministi-\ncally multiplying the input by zero o"
+      },
+      "sections": [
+        {
+          "id": "task",
+          "title": "激活函数为什么重要？",
+          "items": [
+            {
+              "text": "如果没有非线性，堆叠线性层仍只能形成线性映射。激活函数决定神经元如何响应输入，也会影响深层网络的优化与收敛。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Early artificial neurons utilized binary threshold units (Hopfield, 1982; McCulloch & Pitts, 1943).\nThese hard binary decisions are smoothed with sigmoid activations, enabling a neuron to have a “fir-\ning rate” interpretation and to train with backpropagation. But as networks became deeper, training\nwith sigmoid activations proved less effective than the non-smooth, less-probabilistic ReLU (Nair &\nHinton, 2010) which makes hard gating decisions based upon an input’s sign. Despite having less of\na statistical motivation, the ReLU remains a competitive engineering solution which often enables\nfaster and better convergence than sigmoids. Building on the successes of ReLUs, a recent modifi-\ncation called ELUs (Clevert et al., 2016) allows a ReLU-like nonlinearity to output negative values\nwhich sometimes increases training speed. In all, the activation choice has remained a necessary\narchitecture decision for neural networks lest the network be a deep linear classifier.\nDeep nonlinear classifiers can fit their data so well that network designers are often faced with the\nchoice of including stochastic regularizer like adding noise to hidden layers or applying dropout (Sri-\nvastava et al"
+            },
+            {
+              "text": "早期神经元使用二值阈值，sigmoid 将其平滑化；深层网络中，按输入正负进行硬门控的 ReLU 则成为有效的工程选择。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Early artificial neurons utilized binary threshold units (Hopfield, 1982; McCulloch & Pitts, 1943).\nThese hard binary decisions are smoothed with sigmoid activations, enabling a neuron to have a “fir-\ning rate” interpretation and to train with backpropagation. But as networks became deeper, training\nwith sigmoid activations proved less effective than the non-smooth, less-probabilistic ReLU (Nair &\nHinton, 2010) which makes hard gating decisions based upon an input’s sign. Despite having less of\na statistical motivation, the ReLU remains a competitive engineering solution which often enables\nfaster and better convergence than sigmoids. Building on the successes of ReLUs, a recent modifi-\ncation called ELUs (Clevert et al., 2016) allows a ReLU-like nonlinearity to output negative values\nwhich sometimes increases training speed. In all, the activation choice has remained a necessary\narchite"
+            }
+          ]
+        },
+        {
+          "id": "motivation",
+          "title": "激活与正则化：两种操作，同一输出",
+          "items": [
+            {
+              "text": "ReLU 用确定性的 0/1 门控改变输出，dropout 用随机置零抑制过拟合。两者通常分别设计，但共同决定神经元的输出。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Deep nonlinear classifiers can fit their data so well that network designers are often faced with the\nchoice of including stochastic regularizer like adding noise to hidden layers or applying dropout (Sri-\nvastava et al., 2014), and this choice remains separate from the activation function. Some stochastic\nregularizers can make the network behave like an ensemble of networks, a pseudoensemble (Bach-\nman et al., 2014), and can lead to marked accuracy increases. For example, the stochastic regular-\nizer dropout creates a pseudoensemble by randomly altering some activation decisions through zero\nmultiplication. Nonlinearities and dropout thus determine a neuron’s output together, yet the two\ninnovations have remained distinct. More, neither subsumed the other because popular stochastic\nregularizers act irrespectively of the input and nonlinearities are aided by such regularizers.\nIn this work, we introduce a new nonlinearity, the Gaussian Error Linear Unit (GELU). It relates\nto stochastic"
+            },
+            {
+              "text": "本文让“是否保留”依赖输入大小，再把随机变换取期望。目标是得到一种既有概率解释、又能跨任务验证的非线性。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "In this work, we introduce a new nonlinearity, the Gaussian Error Linear Unit (GELU). It relates\nto stochastic regularizers in that it is the expectation of a modification to Adaptive Dropout (Ba &\nFrey, 2013). This suggests a more probabilistic view of a neuron’s output. We find that this novel\nnonlinearity matches or exceeds models with ReLUs or ELUs across tasks from computer vision,\nnatural language processing, and automatic speech recognition. \n2   GELU F ORMULATION \nWe motivate our activation function by combining properties from dropout, zoneout, and ReLUs.\nFirst note that a ReLU and dropout both yield a neuron’s output with the ReLU deterministi-\ncally multiplying the input by zero o"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "related_work",
+      "title": "相关工作",
+      "summary": {
+        "text": "**从符号门控到数值加权。** ReLU、ELU 提供激活函数基线，dropout、zoneout 与 Adaptive Dropout 提供随机门控的动机。",
+        "kind": "paper",
+        "source_pages": [
+          1
+        ],
+        "quote": "We motivate our activation function by combining properties from dropout, zoneout, and ReLUs.\nFirst note that a ReLU and dropout both yield a neuron’s output with the ReLU deterministi-\ncally multiplying the input by zero or one and dropout stochastically multiplying by zero. Also,\na new RNN regularizer called zoneout stochastically multiplies inputs by one (Krueger et al.,\n2016).   We merge this functionality by multiplying the input by zero or one, but the values of\nthis zero-one mask are stochastically determined while also dependent upon the input.   Specif-\nically, we can multiply the neuron input   x   by   m   ∼   Bernoulli (Φ( x )) , where   Φ( x ) =   P   ( X   ≤ \n∗ Work done while the author was at TTIC. Code available at github.com/hendrycks/GELUs \n1 \narXiv:1606.08415v5 [cs.LG] 6 Jun 2023 "
+      },
+      "sections": [
+        {
+          "id": "activations",
+          "title": "ReLU 与 ELU：基线与区别",
+          "items": [
+            {
+              "text": "**ReLU** 按符号决定是否通过输入；**ELU** 允许负输出。论文将二者作为主要比较对象，考察训练、泛化与不同任务中的表现。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Despite having less of\na statistical motivation, the ReLU remains a competitive engineering solution which often enables\nfaster and better convergence than sigmoids. Building on the successes of ReLUs, a recent modifi-\ncation called ELUs (Clevert et al., 2016) allows a ReLU-like nonlinearity to output negative values\nwhich sometimes increases training speed. In all, the activation choice has remained a necessary\narchitecture decision for neural networks lest the network be a deep linear classifier.\nDeep nonlinear classifiers can fit their data so well that network designers are often faced wit"
+            },
+            {
+              "text": "GELU 用连续权重改变输入，不把所有正输入都原样通过，也不把所有负输入都直接置零。",
+              "kind": "paper",
+              "source_pages": [
+                6
+              ],
+              "quote": "Also, since ReLU ( x ) =   x 1 ( x >   0) \nand GELU ( x ) =   x Φ( x )   if   μ   = 0 , σ   = 1 , we can see that the ReLU gates the input depending\nupon its sign, while the GELU weights its input depending upon how much greater it is than other\ninputs. In addition and significantly, the GELU has a probabilistic interpretation given that it is the\nexpectation of a stochastic regularizer.\nWe also have two practical tips for using the GELU. First w"
+            }
+          ]
+        },
+        {
+          "id": "regularizers",
+          "title": "随机门控如何导向确定性激活？",
+          "items": [
+            {
+              "text": "dropout 随机置零，zoneout 随机保留。本文借用这种 0/1 选择，但令保留概率依赖当前输入。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "We motivate our activation function by combining properties from dropout, zoneout, and ReLUs.\nFirst note that a ReLU and dropout both yield a neuron’s output with the ReLU deterministi-\ncally multiplying the input by zero or one and dropout stochastically multiplying by zero. Also,\na new RNN regularizer called zoneout stochastically multiplies inputs by one (Krueger et al.,\n2016).   We merge this functionality by multiplying the input by zero or one, but the values of\nthis zero-one mask are stochastically determined while also dependent upon the input.   Specif-\nically, we can multiply the neuron input   x   by   m   ∼   Bernoulli (Φ( x )) , where   Φ( x ) =   P   ( X   ≤ \n∗ Work done while the author was at TTIC. Code available at github.com/hendrycks/GELUs \n1 \narXiv:1606.08415v5 [cs.LG] 6 Jun 2023 "
+            },
+            {
+              "text": "Adaptive Dropout 同样依赖输入，但采用 logistic 分布，并与激活函数搭配使用。GELU 从标准正态分布出发，将随机变换的期望直接用作激活函数。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Masking   inputs   in   this   fashion   re-\ntains   non-determinism   but   maintains\ndependency upon the input value.   A\nstochastically chosen mask amounts to\na stochastic zero or identity transforma-\ntion of the input.   This is much like\nAdaptive Dropout (Ba & Frey, 2013),\nbut adaptive dropout is used in tandem\nwith nonlinearities and uses a logistic\nnot standard normal distribution.   We\nfound that it is possible to train com-\npetitive MNIST and TIMIT networks\nsolely with this stochastic regularizer,\nall without using any nonlinearity.\nWe often want a deterministic decision\nfrom a neural network, and this gives\nrise to our new nonlinearity. The non-\nlinearity is the expected transformation\nof the stochastic regularizer on an input   x , which is   Φ( x )   ×   Ix   + (1   −   Φ( x ))   ×   0 x   =   x Φ( x ) .\nLoosely, this expression states that we scale   x   by how much greater it is than other inputs. Since the\ncumulative distribution function of a Gaussian is often computed with the error function, we define\nthe Gaussian Error Linear Unit (GELU) as\nGELU ( x ) =   xP   ( X   ≤   x ) =   x Φ( x ) =   x   ·   1\n2 \nh \n1 +   erf ( x/ √ 2) \ni \n. \nWe can approximate the GELU wi"
+            }
+          ],
+          "emphasis": true
+        }
+      ]
+    },
+    {
+      "id": "method",
+      "title": "方法",
+      "summary": {
+        "text": "**先定义输入相关的保留概率，再取输出期望。** 标准 GELU 使用标准正态分布的累积分布函数，不额外引入可调参数。",
+        "kind": "paper",
+        "source_pages": [
+          2
+        ],
+        "quote": "We often want a deterministic decision\nfrom a neural network, and this gives\nrise to our new nonlinearity. The non-\nlinearity is the expected transformation\nof the stochastic regularizer on an input   x , which is   Φ( x )   ×   Ix   + (1   −   Φ( x ))   ×   0 x   =   x Φ( x ) .\nLoosely, this expression states that we scale   x   by how much greater it is than other inputs. Since the\ncumulative distribution function of a Gaussian is often computed with the error function, we define\nthe Gaussian Error Linear Unit (GELU) as\nGELU ( x ) =   xP   ( X   ≤   x ) =   x Φ( x ) =   x   ·   1\n2 \nh \n1 +   erf ( x/ √ 2) \ni \n. \nWe can approximate the GELU with \n0 . 5 x (1 + tanh[ p 2 /π ( x   + 0 . 044715 x 3 )]) \nor \nxσ (1 . 702 x ) , \nif greater feedforward speed is worth the cost of exactness.\nWe could use different CDFs. For example we could use Logistic Distribution CDF   σ ( x )   to get\nwhat we call the Sigmoid Linear Unit (SiLU)   xσ ( x ) . We could use the CDF of   N   ( μ, σ 2 )   and have \nμ   and   σ   be learnable hyperparameters, but throughout this work we simply let   μ   = 0   and   σ   = 1 .\nConsequently, we do not introduce any new hyperparameters in the following experiments. In the\nnext section, we show that the GELU exceeds ReLUs and ELUs across numerous tasks. \n3   GELU E XPERIMENTS \nWe evaluate the GELU, ELU, and ReLU on MNIST classification (grayscale images with 10 classes,\n60k training examples and 10k test examples), MNIST autoencoding, Tweet part-of-speech tagging\n(1000 training, 327 validation, and 500 testing tweets), TIMIT frame recognition (3696 training,\n1152 validation, and 192 test audio sentences), and CIFAR-10/100 classification (color images with\n10/100 classes, 50k training and 10k test examples).   We do not evaluate nonlinearities like the\nLReLU because of its similarity to ReLUs (see Maas et al. (2013) for a description of LReLUs).\n3.1   MNIST C LASSIFICATION \nLet us verify that this nonlinearity competes with previous activation functions by replicating an\nexperiment from Clevert et al. (2016). To this end, we train a fully connected neural network with\nGELUs ( μ   = 0 , σ   = 1 ), ReLUs, and ELUs ( α   = 1 ).   Each 8-layer, 128 n"
+      },
+      "sections": [
+        {
+          "id": "mask",
+          "title": "第一步：输入越小，越可能被丢弃",
+          "items": [
+            {
+              "text": "设输入为 $x$，保留概率为 $\\Phi(x)$。作者以神经元输入往往近似正态、尤其使用 Batch Normalization 时为动机；这不是对所有网络输入的保证。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "We choose this distribution since neuron inputs tend to follow a normal distribution, especially\nwith Batch Normalization.   In this setting, inputs have a higher probability of being “dropped”\nas   x   decreases, so the transformation applied to   x   is stochastic yet depends upon the input. 4   3   2   1   0   1   2   3\n1 \n0\n1\n2\n3   GELU\nReLU\nELU \nFigure 1: The GELU ( μ   = 0 , σ   = 1 ), ReLU, and ELU\n( α   = 1 )"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "m\\sim\\mathrm{Bernoulli}(\\Phi(x)),\\qquad y=mx",
+              "explanation": "m 为 0/1 随机掩码，Φ 为标准正态累积分布函数。",
+              "source_pages": [
+                1
+              ],
+              "quote": "Specif-\nically, we can multiply the neuron input   x   by   m   ∼   Bernoulli (Φ( x )) , where   Φ( x ) =   P   ( X   ≤ \n∗ Work done while the author was at TTIC. Code available at github.com/hendrycks/GELUs \n1 \narXiv:1606.08415v5 [cs.LG] 6 Jun 2023 "
+            }
+          ]
+        },
+        {
+          "id": "expectation",
+          "title": "第二步：取期望，得到 GELU",
+          "items": [
+            {
+              "text": "保留时输出 $x$，丢弃时输出 0。两种输出按概率加权，得到确定性的 $x\\Phi(x)$；使用 GELU 本身不需要在每次前向中采样这个掩码。",
+              "kind": "interpretation",
+              "source_pages": [
+                2
+              ],
+              "quote": "We often want a deterministic decision\nfrom a neural network, and this gives\nrise to our new nonlinearity. The non-\nlinearity is the expected transformation\nof the stochastic regularizer on an input   x , which is   Φ( x )   ×   Ix   + (1   −   Φ( x ))   ×   0 x   =   x Φ( x ) .\nLoosely, this expression states that we scale   x   by how much greater it is than other inputs. Since the\ncumulative distribution function of a Gaussian is often computed with the error function, we define\nthe Gaussian Error Linear Unit (GELU) as\nGELU ( x ) =   xP   ( X   ≤   x ) =   x Φ( x ) =   x   ·   1\n2 \nh \n1 +   erf ( x/ √ 2) \ni \n. \nWe can approximate the GELU with \n0 . 5 x (1 + tanh[ p 2 /π ( x   + 0 . 044715 x 3 )]) \nor \nxσ (1 . 702 x ) , \nif greater feedforward speed is worth the cost of exactness.\nWe could use different CDFs. For example we could use Logistic Distribution CDF   σ ( x )   to get\nwhat we call the Sigmoid Linear Unit (SiLU)   xσ ( x ) . We could use the CDF of   N   ( μ, σ 2 )   and hav"
+            }
+          ],
+          "emphasis": true,
+          "formulas": [
+            {
+              "latex": "\\begin{aligned}\\mathrm{GELU}(x)&=\\mathbb E[mx]=x\\Phi(x)\\\\&=\\frac{x}{2}\\left[1+\\operatorname{erf}\\!\\left(\\frac{x}{\\sqrt2}\\right)\\right]\\end{aligned}",
+              "explanation": "erf 为误差函数；Φ(x) 把输入大小映射为连续的保留权重。",
+              "source_pages": [
+                2
+              ],
+              "quote": "the Gaussian Error Linear Unit (GELU) as\nGELU ( x ) =   xP   ( X   ≤   x ) =   x Φ( x ) =   x   ·   1\n2 \nh \n1 +   erf ( x/ √ 2) \ni \n. \nWe can approximate the GELU with \n0 . 5 x (1 + tanh[ p 2 /π ( x   + 0 . 044715 x 3 )]) \nor \nxσ (1 . 702 x ) , \nif greater feedforward speed is worth the cost of exactness.\nWe could use different CDFs. For example we could use Logistic Distribution CDF   σ ( x )   to get\nwhat we call the Sigmoid Linear Unit (SiLU)   xσ ( x ) . We could use the CDF of   N   ( μ, σ 2 )   and have \nμ   and   σ   be learnable hyperparameters, but throughout this work we simply let   μ   = 0   and   σ   = 1 .\nConsequently, we do not introduce any new hyperparameters in the followin"
+            }
+          ]
+        },
+        {
+          "id": "shape",
+          "title": "图 1 · 与常见激活函数的形状比较",
+          "items": [
+            {
+              "text": "GELU 非凸、非单调，可输出正值和负值，正半轴也有曲率。作者认为这些性质可能有助于逼近复杂函数，但没有给出该机制的因果证明。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "However, the GELU has several notable differences. This non-convex, non-monotonic function is\nnot linear in the positive domain and exhibits curvature at all points. Meanwhile ReLUs and ELUs,\nwhich are convex and monotonic activations, are linear in the positive domain and thereby can lack\ncurvature. As such, increased curvature and non-monotonicity may allow GELUs to more easily\napproximate complicated functions than can ReLUs or ELUs. Also, since ReLU ( x ) =   x 1 ( x >   0) \nand GELU ( x ) =   x Φ( x )   if   μ   = 0 , σ   = 1 , we can see that the ReLU gates the input depending\nupon its sign, while the GELU weights its input depending upon how much greater it is than other\ninputs. In addition and significantly, the GELU has a probabilistic interpretation given that it is the\nexpectation of a stochastic regularizer.\nWe also have two practical tips for using the GELU. First we advise "
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-1"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "approximation",
+          "title": "实际计算：用近似换取速度",
+          "items": [
+            {
+              "text": "论文给出 tanh 与 sigmoid 两种近似。**全部实验使用 tanh 近似**；作者建议搭配带动量的优化器，并重视正态 CDF 的近似精度。",
+              "kind": "paper",
+              "source_pages": [
+                6
+              ],
+              "quote": "We also have two practical tips for using the GELU. First we advise using an optimizer with mo-\nmentum when training with a GELU, as is standard for deep neural networks.   Second, using a\nclose approximation to the cumulative distribution function of a Gaussian distribution is impor-\ntant.   A sigmoid function   σ ( x ) = 1 / (1 +   e − x )   is an approximation of a cumulative distribu-\ntion function of a normal distribution.   However, we found that a Sigmoid Linear Unit (SiLU) \nxσ ( x )   performs worse than GELUs but usually better than ReLUs and ELUs, so our SiLU is\nalso a reasonable nonlinearity choice.   Instead of using a   xσ ( x )   to approximate   Φ( x ) , we used \n0 . 5 x (1 + tanh[ p 2 /π ( x   + 0 . 044715 x 3 )])   (Choudhury, 2014) 1   or   xσ (1 . 702 x ) . Both are sufficiently\nfast, easy-to-implement approximations, and we used the former in every experiment in this paper. \n5   C ONCLUSION \nFor the numerous datasets evaluated in this paper, the GELU exceeded the accuracy of the ELU and\nReLU consistently, making it a viable alternative to previous nonlinearities. \n1 Thank you to Dmytro Mishkin for bringing an approximation like this to our attention. \n6 "
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\begin{gathered}\\mathrm{GELU}(x)\\approx \\frac{x}{2}(1+\\tanh u),\\\\u=\\sqrt{2/\\pi}\\,(x+0.044715x^3)\\end{gathered}",
+              "explanation": "u 包含线性项和三次项；tanh(u) 近似 2Φ(x)−1。",
+              "source_pages": [
+                2
+              ],
+              "quote": "We can approximate the GELU with \n0 . 5 x (1 + tanh[ p 2 /π ( x   + 0 . 044715 x 3 )]) \nor \nxσ (1 . 702 x ) , \nif greater feedforward speed is worth the cost of exactness.\nWe could use different CDFs. For example we could use Logistic Distribution CDF   σ ( x )   to get\nwhat we call the Sigmoid Linear Unit (SiLU)   xσ ( x ) . We could use the CDF of   N   ( μ, σ 2 )   and have \nμ   and   σ   be learnable hyperparameters, but throughout this work we simply let   μ   = 0   and   σ   = 1 .\nConsequently, we do not introduce any new hyperparameters in the following experiments. In the\nnext section, we show that the GELU exceeds ReLUs and ELUs across numerous tasks. \n3   GELU E XPERIMENTS \nWe eval"
+            },
+            {
+              "latex": "\\mathrm{GELU}(x)\\approx x\\,\\sigma(1.702x)",
+              "explanation": "此处 σ 为 logistic sigmoid，不是正态分布的标准差。",
+              "source_pages": [
+                2
+              ],
+              "quote": "We can approximate the GELU with \n0 . 5 x (1 + tanh[ p 2 /π ( x   + 0 . 044715 x 3 )]) \nor \nxσ (1 . 702 x ) , \nif greater feedforward speed is worth the cost of exactness.\nWe could use different CDFs. For example we could use Logistic Distribution CDF   σ ( x )   to get\nwhat we call the Sigmoid Linear Unit (SiLU)   xσ ( x ) . We could use the CDF of   N   ( μ, σ 2 )   and have \nμ   and   σ   be learnable hyperparameters, but throughout this work we simply let   μ   = 0   and   σ   = 1 .\nConsequently, we do not introduce any new hyperparameters in the following experiments. In the\nnext section, we show that the GELU exceeds ReLUs and ELUs across numerous tasks. \n3   GELU E XPERIMENTS \nWe eval"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "experiments",
+      "title": "实验",
+      "summary": {
+        "text": "**比较对象为 GELU、ReLU 和 ELU。** 正文覆盖图像分类、自编码、推文词性标注与语音帧分类；不同任务使用不同结构与训练预算，结果应在各自设置内比较。",
+        "kind": "paper",
+        "source_pages": [
+          2
+        ],
+        "quote": "We evaluate the GELU, ELU, and ReLU on MNIST classification (grayscale images with 10 classes,\n60k training examples and 10k test examples), MNIST autoencoding, Tweet part-of-speech tagging\n(1000 training, 327 validation, and 500 testing tweets), TIMIT frame recognition (3696 training,\n1152 validation, and 192 test audio sentences), and CIFAR-10/100 classification (color images with\n10/100 classes, 50k training and 10k test examples).   We do not evaluate nonlinearities like the\nLReLU because of its similarity to ReLUs (see Maas et al. (2013) for a description of LReLUs).\n3.1   MNIST C LASSIFICATION \nLet us verify that this nonlinearity competes with previous activation functions by replicating an\nexperiment from Clevert et al. (2016). To this end, we train a fully connected neural network"
+      },
+      "sections": [
+        {
+          "id": "mnist",
+          "title": "图 2 · MNIST：收敛与 dropout",
+          "items": [
+            {
+              "text": "8 层、每层 128 单元，训练 50 epochs，batch=128；用 Adam，从三种学习率中选取，保留 5000 个验证样本，报告 5 次运行的中位数。",
+              "kind": "paper",
+              "source_pages": [
+                2,
+                3
+              ],
+              "quote": "Let us verify that this nonlinearity competes with previous activation functions by replicating an\nexperiment from Clevert et al. (2016). To this end, we train a fully connected neural network with\nGELUs ( μ   = 0 , σ   = 1 ), ReLUs, and ELUs ( α   = 1 ).   Each 8-layer, 128 neuron wide neural\nnetwork is trained for 50 epochs with a batch size of 128. This experiment differs from those of\n2 "
+            },
+            {
+              "text": "比较不使用 dropout 与保留率 0.5。GELU 通常有更低的训练损失；**训练曲线领先不能直接等同于所有验证曲线领先**。",
+              "kind": "interpretation",
+              "source_pages": [
+                3
+              ],
+              "quote": "Clevert et al. in that we use the Adam optimizer (Kingma & Ba, 2015) rather than stochastic gra-\ndient descent without momentum, and we also show how well nonlinearities cope with dropout.\nWeights are initialized with unit norm rows, as this has positive impact on each nonlinearity’s per-\nformance (Hendrycks & Gimpel, 2016; Mishkin & Matas, 2016; Saxe et al., 2014). Note that we\ntune over the learning rates   { 10 − 3 ,   10 − 4 ,   10 − 5 }   with 5k validation examples from the training set\nand take the median results for five runs. Using these classifiers, we demonstrate in Figure 3 that\nclassifiers using a GELU can be more robust to noised inputs. Figure 2 shows that the GELU tends\nto have the lowest median training log loss with and without dropout. Consequently, although the\nGELU is inspired by a different stochastic process, it comports well with dropout.\n3.2   MNIST A UTOENCODER \nWe now consider a self-supervised setting and train a deep autoencoder on MNIST (Desjardins\net al., 2015). To accomplish this, we use a network with layers of width 1000, 500, 250, 30, 250,\n500, 1000"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-2"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "noise",
+          "title": "图 3 · 输入噪声下的鲁棒性",
+          "items": [
+            {
+              "text": "对未使用 dropout 训练的分类器，在测试输入加入 $\\mathrm{Unif}[-a,a]$ 噪声，最高 $a=3$。分别观察准确率下降与对数损失上升，GELU 在该设置下匹配或超过比较基线。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "Figure 3: MNIST Robustness Results. Using different nonlinearities, we record the test set accuracy\ndecline and log loss increase as inputs are noised. The MNIST classifier trained without dropout\nreceived inputs with uniform noise Unif [ − a, a ]   added to each example at different levels   a , where \na   = 3   is the greatest noise strength. Here GELUs display robustness matching or exceeding ELUs\nand ReLUs.\nClevert et al. in that we use the Adam optimizer (Kingma & Ba, 2015) rather than stochastic gra-\ndient descent without momentum, and we also show how well nonlinearities cope with dropout.\nWeights are initialized with unit norm rows, as this has positive impact on each nonlinearity’s per-\nformance (Hendr"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-3"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "autoencoder",
+          "title": "图 4 · 自编码：重建误差",
+          "items": [
+            {
+              "text": "网络宽度依次为 1000、500、250、30、250、500、1000。使用 Adam、batch=64 和均方误差，比较 $10^{-3}$、$10^{-4}$ 学习率，曲线为 3 次运行的中位数。",
+              "kind": "paper",
+              "source_pages": [
+                3,
+                4
+              ],
+              "quote": "We now consider a self-supervised setting and train a deep autoencoder on MNIST (Desjardins\net al., 2015). To accomplish this, we use a network with layers of width 1000, 500, 250, 30, 250,\n500, 1000, in that order.   We again use the Adam optimizer and a batch size of 64.   Our loss is\nthe mean squared loss.   We vary the learning rate from   10 − 3   to   10 − 4 .   We also tried a learning\nrate of   0 . 01   but ELUs diverged, and GELUs and RELUs converged poorly. The results in Figure 4\nindicate the GELU accommodates different learning rates and significantly outperforms the other\nnonlinearities.\n3 "
+            },
+            {
+              "text": "GELU 在两种学习率下有更低重建误差。学习率 0.01 时，ELU 发散，GELU 与 ReLU 也收敛不佳，优势仍依赖训练设置。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "We now consider a self-supervised setting and train a deep autoencoder on MNIST (Desjardins\net al., 2015). To accomplish this, we use a network with layers of width 1000, 500, 250, 30, 250,\n500, 1000, in that order.   We again use the Adam optimizer and a batch size of 64.   Our loss is\nthe mean squared loss.   We vary the learning rate from   10 − 3   to   10 − 4 .   We also tried a learning\nrate of   0 . 01   but ELUs diverged, and GELUs and RELUs converged poorly. The results in Figure 4\nindicate the GELU accommodates different learning rates and significantly outperforms the other\nnonlinearities.\n3 "
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-4"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "tweets",
+          "title": "小样本文本：推文词性标注",
+          "items": [
+            {
+              "text": "25 种词性，输入为当前词及左右邻词的预训练词向量；两层各 256 单元，dropout 保留率 0.8。每种学习率运行 5 次。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Many datasets in natural language processing are relatively small, so it is important that an activation\ngeneralize well from few examples. To meet this challenge we compare the nonlinearities on POS-\nannotated tweets (Gimpel et al., 2011; Owoputi et al., 2013) which contain 25 tags.   The tweet\ntagger is simply a two-layer network with pretrained word vectors trained on a corpus of 56 million\ntweets (Owoputi et al., 2013). The input is the concatenation of the vector of the word to be tagged\nand those of its left and right neighboring words.   Each layer has 256 neurons, a dropout keep\nprobability of 0.8, and the network is optimized with Adam while tuning over the learning rates \n{ 10 − 3 ,   10 − 4 ,   10 − 5 } . We train each network five times per learning rate, and the median test set\nerror is 12.57% for the GELU, 12.67% for the ReLU, and 12.91% for the ELU.\n3.4   TIMIT F RAME   C LASSIFICATION \nOur next challenge is phone recognition with the TIMIT dataset which has recordings of 680\nspeakers in a noiseless environment.   The system is a five-layer, 2048-neuron wide classifier"
+            },
+            {
+              "text": "测试错误率中位数：**GELU 12.57%**，ReLU 12.67%，ELU 12.91%。这里的收益幅度较小，应结合任务与基线理解。",
+              "kind": "interpretation",
+              "source_pages": [
+                4
+              ],
+              "quote": "Many datasets in natural language processing are relatively small, so it is important that an activation\ngeneralize well from few examples. To meet this challenge we compare the nonlinearities on POS-\nannotated tweets (Gimpel et al., 2011; Owoputi et al., 2013) which contain 25 tags.   The tweet\ntagger is simply a two-layer network with pretrained word vectors trained on a corpus of 56 million\ntweets (Owoputi et al., 2013). The input is the concatenation of the vector of the word to be tagged\nand those of its left and right neighboring words.   Each layer has 256 neurons, a dropout keep\nprobability of 0.8, and the network is optimized with Adam while tuning over the learning rates \n{ 10 − 3 ,   10 − 4 ,   10 − 5 } . We train each network five times per learning rate, and the median test set\nerror is 12.57% for the GELU, 12.67% for the ReLU, and 12.91% for the ELU.\n3.4   TIMIT F RAME   C LASSIFICATION \nOur next challenge is phone recognition with the TIMIT dataset which has recordings of 680\nspeakers in a noiseless environment.   The system is a five-layer, 2048-neuron wide classifier as\nin (Mohamed et al., 2012) with 39 output phone labels and a dropout rate of 0.5 as in (Srivas-\ntava, 2013).   This network takes as input 11 frames and must predict the phone of the center\n4 "
+            }
+          ]
+        },
+        {
+          "id": "timit",
+          "title": "图 5 · 语音：TIMIT 帧分类",
+          "items": [
+            {
+              "text": "5 层、每层 2048 单元，39 类音素，dropout=0.5；读取 11 帧特征，预测中间帧。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Our next challenge is phone recognition with the TIMIT dataset which has recordings of 680\nspeakers in a noiseless environment.   The system is a five-layer, 2048-neuron wide classifier as\nin (Mohamed et al., 2012) with 39 output phone labels and a dropout rate of 0.5 as in (Srivas-\ntava, 2013).   This network takes as input 11 frames and must predict the phone of the center\n4 "
+            },
+            {
+              "text": "按最低验证错误率选择模型，5 次运行测试错误率中位数为 **29.3% / 29.5% / 29.6%**，依次对应 GELU / ReLU / ELU。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "frame using 26 MFCC, energy, and derivative features per frame. We tune over the learning rates \n{ 10 − 3 ,   10 − 4 ,   10 − 5 }   and optimize with Adam.   After five runs per setting, we obtain the median\ncurves in Figure 5, and median test error chosen at the lowest validation error is 29.3% for the\nGELU, 29.5% for the ReLU, and 29.6% for the ELU.\n3.5   CIFAR-10/100 C LASSIFICATION \nNext, we demonstrate that for more intricate architectures the GELU nonlinearity again outperforms\nother nonlinearities. We evaluate this activation function using CIFAR-10 and CIFAR-100 datasets\n(Krizhevsky, 2"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-5"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "cifar10",
+          "title": "图 6 · CIFAR-10：无数据增强",
+          "items": [
+            {
+              "text": "9 层卷积网络并使用 Batch Normalization，**不使用数据增强**。验证集选择学习率后重训全部训练集，Adam 训练 200 epochs，从第 100 个 epoch 起线性衰减学习率。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Our shallower convolutional neural network is a 9-layer network with the architecture and training\nprocedure from Salimans & Kingma (2016) while using batch normalization to speed up training.\nThe architecture is described in appendix A and recently obtained state of the art on CIFAR-10\nwithout data augmentation. No data augmentation was used to train this network. We tune over\nthe learning initial rates   { 10 − 3 ,   10 − 4 ,   10 − 5 }   with 5k validation examples then train on the whole\ntraining set again based upon the learning rate from cross validation. The network is optimized with\nAdam for 200 epochs, and at the 100th epoch the learning rate linearly decays to zero. Results are\nshown in Figure 6, and each curve is a median of three runs. Ultimately, the GELU obtains a median\nerror rate of   7.89 %, the ReLU obtains 8.16%, and the ELU obtains 8.41%.\nNext we consider a wide residual network on CIFAR-100 with 40 layers and a widening factor of   4 \n(Zagoruyko & Komodakis, 2016). We train for 50 epochs with the learning rate schedule described\nin (Loshchilov & Hutter, 2016) ( T 0   = 50 , η   = 0 . 1 ) with Nesterov momentum, and with a dropout\nkeep probability of 0.7.   Some have noted that ELUs have an exploding gradient w"
+            },
+            {
+              "text": "3 次运行的测试错误率中位数：**GELU 7.89%**，ReLU 8.16%，ELU 8.41%。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Ultimately, the GELU obtains a median\nerror rate of   7.89 %, the ReLU obtains 8.16%, and the ELU obtains 8.41%.\nNext we consider a wide residual network on CIFAR-100 with 40 layers and a widening factor of   4 \n(Zagoruy"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-6"
+            }
+          ],
+          "media_first": true
+        },
+        {
+          "id": "cifar100",
+          "title": "图 7 · CIFAR-100：更深的残差网络",
+          "items": [
+            {
+              "text": "40 层、宽度倍率 4，训练 50 epochs；Nesterov 动量，dropout 保留率 0.7。为兼容 ELU，把 BatchNorm 放在残差块末尾。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Next we consider a wide residual network on CIFAR-100 with 40 layers and a widening factor of   4 \n(Zagoruyko & Komodakis, 2016). We train for 50 epochs with the learning rate schedule described\nin (Loshchilov & Hutter, 2016) ( T 0   = 50 , η   = 0 . 1 ) with Nesterov momentum, and with a dropout\nkeep probability of 0.7.   Some have noted that ELUs have an exploding gradient with residual\nnetworks (Shah et al., 2016), and this is alleviated with batch normalization at the end of a residual\nblock.   Consequently, we use a Conv-Activation-Conv-Activation-BatchNorm block architecture\nto be charitable to ELUs. Over three runs we obtain the median convergence curves in Figure 7.\nMeanwhile, the GELU achieves a median error of   20.74 %, the ReLU obtains 21.77% (without our\nchanges described above, the original 40-4 WideResNet with a ReLU obtains 22.89% (Zagoruyko\n& Komodakis, 2016)), and the ELU obtains 22.98%. \n4   D ISCUSSION \nAcross several experiments, the GELU outperformed previous nonlinearities, but it bears semblance\nto the ReLU and ELU in other respects. For example, as   σ   →   0   and if   μ   = 0 , the GELU becomes\na ReLU. More, the ReLU and GELU are equal asymptotically. In fact, the GELU can be viewed\nas a way to smooth a ReLU. To see this, recall that ReLU   = max( x,  "
+            },
+            {
+              "text": "修改后同一结构中，3 次运行的错误率中位数为 **20.74% / 21.77% / 22.98%**，对应 GELU / ReLU / ELU。原版 ReLU 网络的 22.89% 不应当作相同结构下的直接对照。",
+              "kind": "interpretation",
+              "source_pages": [
+                5
+              ],
+              "quote": "Meanwhile, the GELU achieves a median error of   20.74 %, the ReLU obtains 21.77% (without our\nchanges described above, the original 40-4 WideResNet with a ReLU obtains 22.89% (Zagoruyko\n& Komodakis, 2016)), and the ELU obtains 22.98%. \n4   D ISCUSSION \nAcross several experiments, the GELU outperformed previous nonlinearities, but it bears semblance\nto the ReLU and ELU in other respects. For example, as   σ   →   0   and if   μ   = 0 , the GELU becomes\na ReLU. More, the ReLU and GELU are equal asymptotically. In fa"
+            }
+          ],
+          "images": [
+            {
+              "asset_id": "fig-7"
+            }
+          ],
+          "media_first": true
+        }
+      ]
+    },
+    {
+      "id": "limitations",
+      "title": "局限",
+      "summary": {
+        "text": "**证据支持在所测设置中有效，不能推成对所有网络与任务的保证。** 比较范围、优化设置以及对机制的解释均有边界。",
+        "kind": "interpretation",
+        "source_pages": [
+          2
+        ],
+        "quote": "We evaluate the GELU, ELU, and ReLU on MNIST classification (grayscale images with 10 classes,\n60k training examples and 10k test examples), MNIST autoencoding, Tweet part-of-speech tagging\n(1000 training, 327 validation, and 500 testing tweets), TIMIT frame recognition (3696 training,\n1152 validation, and 192 test audio sentences), and CIFAR-10/100 classification (color images with\n10/100 classes, 50k training and 10k test examples).   We do not evaluate nonlinearities like the\nLReLU because of its similarity to ReLUs (see Maas et al. (2013) for a description of LReLUs).\n3.1   MNIST C LASSIFICATION \nLet us verify that this nonlinearity competes with previous activation functions by replicating an\nexperiment from Clevert et al. (2016). To this end, we train a fully connected neural network"
+      },
+      "sections": [
+        {
+          "id": "scope",
+          "title": "比较范围与结构条件",
+          "items": [
+            {
+              "text": "正文主要比较 ReLU、ELU，没有评估 LReLU 等更广泛的非线性；论文给出的结论应限制在已测任务和对照范围内。",
+              "kind": "interpretation",
+              "source_pages": [
+                2
+              ],
+              "quote": "We evaluate the GELU, ELU, and ReLU on MNIST classification (grayscale images with 10 classes,\n60k training examples and 10k test examples), MNIST autoencoding, Tweet part-of-speech tagging\n(1000 training, 327 validation, and 500 testing tweets), TIMIT frame recognition (3696 training,\n1152 validation, and 192 test audio sentences), and CIFAR-10/100 classification (color images with\n10/100 classes, 50k training and 10k test examples).   We do not evaluate nonlinearities like the\nLReLU because of its similarity to ReLUs (see Maas et al. (2013) for a description of LReLUs).\n3.1   MNIST C LASSIFICATION \nLet us verify that this nonlinearity competes with previous activation functions by replicating an\nexperiment from Clevert et al. (2016). To this end, we train a fully connected neural network"
+            },
+            {
+              "text": "CIFAR-100 为照顾 ELU 改过残差块，且各任务的预算不同。跨任务误差率、不同结构结果不能混合成一个统一的提升数字。",
+              "kind": "interpretation",
+              "source_pages": [
+                5
+              ],
+              "quote": "Next we consider a wide residual network on CIFAR-100 with 40 layers and a widening factor of   4 \n(Zagoruyko & Komodakis, 2016). We train for 50 epochs with the learning rate schedule described\nin (Loshchilov & Hutter, 2016) ( T 0   = 50 , η   = 0 . 1 ) with Nesterov momentum, and with a dropout\nkeep probability of 0.7.   Some have noted that ELUs have an exploding gradient with residual\nnetworks (Shah et al., 2016), and this is alleviated with batch normalization at the end of a residual\nblock.   Consequently, we use a Conv-Activation-Conv-Activation-BatchNorm block architecture\nto be charitable to ELUs. Over three runs we obtain the median convergence curves in Figure 7.\nMeanwhile, the GELU achieves a median error of   20.74 %, the ReLU obtains 21.77% (without our\nchanges described above, the original 40-4 WideResNet with a ReLU obtains 22.89% (Zagoruyko\n& Komodakis, 2016)), and the ELU obtains 22.98%. \n4   D ISCUSSION \nAcross several experiments, the GELU outperformed previous nonlinearities, but it bears semblance\nto the ReLU and ELU in other respects. For example, as   σ   →   0   and if   μ   = 0 , the GELU becomes\na ReLU. More, the ReLU and GELU are equal asymptotically. In fact, the GELU can be viewed\nas a way to smooth a ReLU. To see this, recall that ReLU   = max( x,   0) =   x 1 ( x >   0)   (where\n5 "
+            }
+          ]
+        },
+        {
+          "id": "causality",
+          "title": "机制解释与经验结果要分开",
+          "items": [
+            {
+              "text": "曲率和非单调性“可能”改善复杂函数逼近，是作者的解释。实验证明这些配置的效果，尚不能单独确认是哪项函数性质带来收益。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "However, the GELU has several notable differences. This non-convex, non-monotonic function is\nnot linear in the positive domain and exhibits curvature at all points. Meanwhile ReLUs and ELUs,\nwhich are convex and monotonic activations, are linear in the positive domain and thereby can lack\ncurvature. As such, increased curvature and non-monotonicity may allow GELUs to more easily\napproximate complicated functions than can ReLUs or ELUs. Also, since ReLU ( x ) =   x 1 ( x >   0) \nand GELU ( x ) =   x Φ( x )   if   μ   = 0 , σ   = 1 , we can see that the ReLU gates the input depending\nupon its sign, while the GELU weights its input depending upon how much greater it is than other\ninputs. In addition and significantly, the GELU has a probabilistic interpretation given that it is the\nexpectati"
+            },
+            {
+              "text": "近似公式存在速度与精度取舍；自编码实验中较大学习率也会带来收敛问题，GELU 不能替代对优化设置的选择。",
+              "kind": "interpretation",
+              "source_pages": [
+                3
+              ],
+              "quote": "We now consider a self-supervised setting and train a deep autoencoder on MNIST (Desjardins\net al., 2015). To accomplish this, we use a network with layers of width 1000, 500, 250, 30, 250,\n500, 1000, in that order.   We again use the Adam optimizer and a batch size of 64.   Our loss is\nthe mean squared loss.   We vary the learning rate from   10 − 3   to   10 − 4 .   We also tried a learning\nrate of   0 . 01   but ELUs diverged, and GELUs and RELUs converged poorly. The results in Figure 4\nindicate the GELU accommodates different learning rates and significantly outperforms the other\nnonlinearities.\n3 "
+            }
+          ],
+          "tone": "red"
+        }
+      ]
+    },
+    {
+      "id": "future_work",
+      "title": "未来展望",
+      "summary": {
+        "text": "正文提出可以更换累积分布函数、学习正态分布参数的可能性；实际实验固定标准正态分布，没有给出独立的未来研究计划。",
+        "kind": "interpretation",
+        "source_pages": [
+          2
+        ],
+        "quote": "We could use different CDFs. For example we could use Logistic Distribution CDF   σ ( x )   to get\nwhat we call the Sigmoid Linear Unit (SiLU)   xσ ( x ) . We could use the CDF of   N   ( μ, σ 2 )   and have \nμ   and   σ   be learnable hyperparameters, but throughout this work we simply let   μ   = 0   and   σ   = 1 .\nConsequently, we do not introduce any new hyperparameters in the following experiments. In the\nnext section, we show that the GELU exceeds ReLUs and ELUs across numerous tasks. \n3   GELU E XPERIMENTS \nWe evaluate the GELU, ELU, and ReLU on MNIST classification (grayscale images with 10 classes,\n60k training examples and 10k test examples), MNIST autoencoding, Tweet part-of-speech tagging\n(1000 training, 327 validation, and 500 testing tweets), TIMIT frame recognition (3696 tr"
+      },
+      "sections": [
+        {
+          "id": "extensions",
+          "title": "可探索的参数化形式",
+          "items": [
+            {
+              "text": "可将标准正态改成 $\\mathcal N(\\mu,\\sigma^2)$，使 $\\mu$ 与 $\\sigma$ 可学习。本文始终固定 $\\mu=0,\\sigma=1$，因此不能把可学习版本的潜力写成已验证结果。",
+              "kind": "interpretation",
+              "source_pages": [
+                2
+              ],
+              "quote": "We could use different CDFs. For example we could use Logistic Distribution CDF   σ ( x )   to get\nwhat we call the Sigmoid Linear Unit (SiLU)   xσ ( x ) . We could use the CDF of   N   ( μ, σ 2 )   and have \nμ   and   σ   be learnable hyperparameters, but throughout this work we simply let   μ   = 0   and   σ   = 1 .\nConsequently, we do not introduce any new hyperparameters in the following experiments. In the\nnext section, we show that the GELU exceeds ReLUs and ELUs across numerous tasks. \n3   GELU E XPERIMENTS \nWe evaluate the GELU, ELU, and ReLU on MNIST classification (grayscale images with 10 classes,\n60k training examples and 10k test examples), MNIST autoencoding, Tweet part-of-speech tagging\n(1000 training, 327 validation, and 500 testing tweets), TIMIT frame recognition (3696 tr"
+            },
+            {
+              "text": "另一个方向是替换 CDF：logistic CDF 得到 $x\\sigma(x)$，文中称为 SiLU。作者在讨论中给出定性比较，但正文未提供独立的完整实验表。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "We also have two practical tips for using the GELU. First we advise using an optimizer with mo-\nmentum when training with a GELU, as is standard for deep neural networks.   Second, using a\nclose approximation to the cumulative distribution function of a Gaussian distribution is impor-\ntant.   A sigmoid function   σ ( x ) = 1 / (1 +   e − x )   is an approximation of a cumulative distribu-\ntion function of a normal distribution.   However, we found that a Sigmoid Linear Unit (SiLU) \nxσ ( x )   performs worse than GELUs but usually better than ReLUs and ELUs, so our SiLU is\nalso a reasonable nonlinearity choice.   Instead of using a   xσ ( x )   to approximate   Φ( x ) , we used \n0 . 5 x (1 + tanh[ p 2 /π ( x   + 0 . 044715 x 3 )])   (Choudhury, 2014) 1   or   xσ (1 . 702 x ) . Both are sufficiently\nfast, easy-to-implement approximations, and we used the former in every experiment in this paper. \n5   C ONCLUSION \nFor the numerous datasets evaluated in this paper, the GELU exceeded the accuracy of the ELU and\nReLU consistently, making it a viable alternative to previous nonlinearities. "
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

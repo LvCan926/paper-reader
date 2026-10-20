@@ -1,0 +1,97 @@
+{
+  "reviewed": true,
+  "source": "arXiv:1706.03762v7",
+  "coverage": "正文 Figure 1–2、Table 1–4 全收录。",
+  "assets": [
+    {
+      "id": "fig-1",
+      "label": "Figure 1 · Transformer 总体架构",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.3,
+        0.08,
+        0.7,
+        0.54
+      ],
+      "caption": "左：编码器；右：解码器。N× 表示重复堆叠。",
+      "include": true
+    },
+    {
+      "id": "fig-2",
+      "label": "Figure 2 · 点积注意力与多头注意力",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 4,
+      "box": [
+        0.17,
+        0.08,
+        0.84,
+        0.375
+      ],
+      "caption": "左：缩放点积；右：多头的投影、并行计算与拼接。",
+      "include": true
+    },
+    {
+      "id": "table-1",
+      "label": "Table 1 · 层复杂度、顺序操作与路径长度",
+      "type": "table",
+      "scope": "body",
+      "source_page": 6,
+      "box": [
+        0.17,
+        0.085,
+        0.84,
+        0.25
+      ],
+      "caption": "n：序列长度；d：表示维度；k：卷积核宽度；r：局部注意力邻域。",
+      "include": true
+    },
+    {
+      "id": "table-2",
+      "label": "Table 2 · WMT 2014 翻译成绩与训练成本",
+      "type": "table",
+      "scope": "body",
+      "source_page": 8,
+      "box": [
+        0.17,
+        0.085,
+        0.84,
+        0.32
+      ],
+      "caption": "newstest2014；BLEU 越高越好，训练成本为估计 FLOPs。",
+      "include": true
+    },
+    {
+      "id": "table-3",
+      "label": "Table 3 · 模型变体与消融",
+      "type": "table",
+      "scope": "body",
+      "source_page": 9,
+      "box": [
+        0.17,
+        0.085,
+        0.84,
+        0.497
+      ],
+      "caption": "英德 newstest2013；不做 checkpoint 平均。参数量单位：百万。",
+      "include": true
+    },
+    {
+      "id": "table-4",
+      "label": "Table 4 · 英语成分句法分析",
+      "type": "table",
+      "scope": "body",
+      "source_page": 10,
+      "box": [
+        0.17,
+        0.085,
+        0.84,
+        0.312
+      ],
+      "caption": "WSJ Section 23；F1 越高越好。WSJ-only 与半监督条件分别比较。",
+      "include": true
+    }
+  ]
+}

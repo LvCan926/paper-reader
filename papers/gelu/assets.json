@@ -1,0 +1,112 @@
+{
+  "reviewed": true,
+  "source": "arXiv:1606.08415v5",
+  "coverage": "正文 Figure 1–7 全收录；正文没有表格。",
+  "assets": [
+    {
+      "id": "fig-1",
+      "label": "Figure 1",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 2,
+      "box": [
+        0.445,
+        0.178,
+        0.831,
+        0.4
+      ],
+      "caption": "GELU、ReLU 与 ELU；标准 GELU 使用 μ=0、σ=1。",
+      "include": true
+    },
+    {
+      "id": "fig-2",
+      "label": "Figure 2",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.17,
+        0.1,
+        0.835,
+        0.348
+      ],
+      "caption": "左：无 dropout；右：保留率 0.5。深色为训练，浅色为验证；5 次运行的中位数。",
+      "include": true
+    },
+    {
+      "id": "fig-3",
+      "label": "Figure 3",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 3,
+      "box": [
+        0.17,
+        0.357,
+        0.835,
+        0.637
+      ],
+      "caption": "不同均匀噪声强度下的测试准确率与对数损失。",
+      "include": true
+    },
+    {
+      "id": "fig-4",
+      "label": "Figure 4",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 4,
+      "box": [
+        0.17,
+        0.1,
+        0.835,
+        0.348
+      ],
+      "caption": "两种学习率下的自编码重建曲线，3 次运行的中位数。",
+      "include": true
+    },
+    {
+      "id": "fig-5",
+      "label": "Figure 5",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 4,
+      "box": [
+        0.17,
+        0.359,
+        0.835,
+        0.643
+      ],
+      "caption": "TIMIT 训练与验证收敛；浅色曲线为验证集。",
+      "include": true
+    },
+    {
+      "id": "fig-6",
+      "label": "Figure 6",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 5,
+      "box": [
+        0.17,
+        0.095,
+        0.835,
+        0.38
+      ],
+      "caption": "CIFAR-10 错误率；浅色为测试集，3 次运行的中位数。",
+      "include": true
+    },
+    {
+      "id": "fig-7",
+      "label": "Figure 7",
+      "type": "figure",
+      "scope": "body",
+      "source_page": 6,
+      "box": [
+        0.17,
+        0.095,
+        0.835,
+        0.38
+      ],
+      "caption": "CIFAR-100 对数损失；训练开启 dropout，测试关闭。",
+      "include": true
+    }
+  ]
+}

@@ -1,0 +1,669 @@
+{
+  "title": "RSIFlow: Adaptive Self-Improvement Workflows with an Evolving Meta-Agent",
+  "subtitle": "随瓶颈选择改进路径，并让改进者积累经验",
+  "source_label": "Huan Zhang, Mingju Chen et al. · arXiv:2610.21791v1 · 2026",
+  "chapters": [
+    {
+      "id": "background",
+      "title": "背景",
+      "summary": {
+        "text": "**核心问题：任务智能体变了，改进它的方法也应随之变化。** RSIFlow 根据当前瓶颈选择改模型、改框架或修成果，并把干预经验沉淀到元智能体中。",
+        "kind": "paper",
+        "source_pages": [
+          2
+        ],
+        "quote": "We formulate this challenge as dynamic work- flow adaptation in RSI, where adapting bottlenecks and evolving workflow orchestration must be con- sidered together. As illustrated in Fig. 1, self- improvement workflows must adapt to bottlenecks that vary with task requirements and the agent’s ca- pability state. Even within a fixed domain, success- ful updates can reshape these bottlenecks and alter the effectiveness of subsequent workflow orchestra- tion. Meanwhile, workflow orchestration is itself a capability that can improve through experience. Feedback from workflow execution supports the ac- cumulation and refinement of reusable knowledge for diagnosis, workflow selection, and execution. These processes form a feedback loop: task-level updates reshape improvement requirements, while workflow experience refines the orchestration capa- bility that guides subsequent updates. To address this challenge, we propose RSIFlow , a framework that couples adaptive workflow orches- tration with"
+      },
+      "sections": [
+        {
+          "id": "task",
+          "title": "自我改进不只有模型训练",
+          "items": [
+            {
+              "text": "代码生成、工具使用和多跳问答的错误，可能来自模型能力、执行框架，也可能只是当前产物有缺陷。不同原因需要不同干预。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Recent advances in large language models (LLMs) have enabled agents to tackle complex tasks in coding, tool use, and multi-hop question answer- ing (Yang et al., 2024; Schick et al., 2023; Yao et al., 2023). To continuously enhance the devel- opment of agents’ capabilities in task domains, ex- isting methods have adopted complementary ap- proaches, including evolving execution harnesses Task Agent t Task Agent t + 1 Execution error Context loss Execution error Tool-use bias Problem1: Bottlenecks Shifting Meta-Agent & Same fixed workflow Bottleneck: Model Bottleneck: Harness Score Success still provides reusable evidence. Score Failure still provides reusable evidence. Problem2: Meta-Agent Capabilities Lagging Recover context Collect data & train 3. Paired feedback Before After 4. Skills and harness evolution Refine skills Accumulated experience Meta t H 1 Meta t H  1. Current fault Diagnosis Current errors Diagnose · Select · Compose 1 t e  t e 2. Adaptive workflows Orchestrate workf"
+            },
+            {
+              "text": "组件级方法固定优化一个部件；系统级方法协调多个部件；递归自我改进还要改进“如何产生下一次改进”的机制。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Research on agent self-improvement spans three increasingly broad scopes of optimization. Component-level approaches optimize a predefined part of the system, such as the model or the harness (execution workflows) (Luo et al., 2025; Zhang et al., 2026b). System-level approaches coordi- nate updates across components, including joint model–harness optimization and feedback-driven selection of update targets (Chen et al., 2026d,b; Hebbar et al., 2026). Meta-level approaches make 1 arXiv:2610.21791v1 [cs.AI] 15 Oct 2026 "
+            }
+          ]
+        },
+        {
+          "id": "shift",
+          "title": "两个相互关联的瓶颈",
+          "items": [
+            {
+              "text": "一次有效更新会改变后续短板。始终采用同一工作流，可能继续修改已经不再是主要瓶颈的组件。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "As illustrated in Fig. 1, self- improvement workflows must adapt to bottlenecks that vary with task requirements and the agent’s ca- pability state. Even within a fixed domain, success- ful updates can reshape these bottlenecks and alter the effectiveness of subsequent workflow orchestra- tion. Meanwhile, workflow orchestration is itself a capability that can improve through experience. Feedback from workflow execution supports the ac- cumulation and refinement of reusable knowledge for diagnosis, workflow selection, and execution. These processes form a feedback loop: task-level updates reshape improvement requirements, while workflow experience refines the orchestration capa- bility that guides subsequent updates. To address this challenge, we propose RSIFlow , a framework that couples adaptive workflow orches- tration with meta-agent capability evolution . We instantiate three self-improvement workflows tar- geting the Harness , Model , and Artifacts . A meta- agent uses execution t"
+            },
+            {
+              "text": "另一方面，编排改进流程本身也需要学习。成功与失败的干预都能提供诊断、选择及执行经验，不能执行完就丢弃。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Meanwhile, workflow orchestration is itself a capability that can improve through experience. Feedback from workflow execution supports the ac- cumulation and refinement of reusable knowledge for diagnosis, workflow selection, and execution. These processes form a feedback loop: task-level updates reshape improvement requirements, while workflow experience refines the orchestration capa- bility that guides subsequent updates. To address this challenge, we propose RSIFlow , a framework that couples adaptive workflow orches- tration with meta-agent capability evolution . We instantiate three self-improvement workflows tar- geting the Harness , Model , and Artifacts . A meta- agent uses execution trajectories and environmental feedback to diagnose the task agent’s bottlenecks, select a workflow, and orchestrate candidate gener- ation and validation. It then distills orchestration outcomes into component-specific skills and cross- component principles to revise its own harness, in- cluding"
+            }
+          ],
+          "emphasis": true
+        },
+        {
+          "id": "motivation",
+          "title": "图 1 · 从固定更新转向递归反馈",
+          "items": [
+            {
+              "text": "循环依次执行故障诊断、选择工作流、比较父代与候选，再更新技能和元框架。下一轮既使用更新后的任务智能体，也使用改进后的编排经验。",
+              "kind": "paper",
+              "source_pages": [
+                1
+              ],
+              "quote": "Figure 1: Motivation of RSIFlow. (A) Two coupled challenges in RSI. (B) The execution loop of RSIFlow. (Zhang et al., 2025), optimizing model parame- ters (Luo et al., 2025), and refining executable ar- tifacts (Novikov et al., 2025). These routes can be organized into self-improvement workflows that propose and evaluate changes using task feedback. Beyond executing such workflows, recursive self- improvement (RSI) seeks to strengthen not only task-solving capabilities but also the mechanisms that generate subsequent improvements (Zhang et al., 2026c; Duan et al., 2026). Research on agent self-improvement spans three increasingly broad scopes of optimization. Component-level approaches optimize a predefined part of the system, such as the model or the harness (execution workflows) (Luo et al., 2025; Zhang et al., 2026b). System-level approaches coordi- nate updates across components, including joint model–harness optimization and feedback-driven selection of update targets (Chen et al."
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "related_work",
+      "title": "相关工作",
+      "summary": {
+        "text": "本文把“选择改哪个组件”和“改进选择与编排能力”结合起来，区别于固定组件更新或预设交替顺序。",
+        "kind": "paper",
+        "source_pages": [
+          2
+        ],
+        "quote": "Component-Specific Self-Improvement. Many approaches to agent self-improvement optimize a single predefined component. STaR (Zelikman et al., 2022) improves model parameters by re- peatedly fine-tuning on self-generated rationales that yield correct answers. AFlow (Zhang et al., 2025) searches code-represented workflows, while Recursive Harness Self-Improvement (Lee et al., 2026) refines prompt-level harness specifications using pairwise feedback over revision histories. Related approaches include DSPy (Khattab et al., 2024) for language-model pipeline optimization, GEPA (Agrawal et al., 2026) for reflective prompt evolution, and ADAS (Hu et al., 2025) for meta- agent-guided search over agent programs. In con- trast, AlphaEvolve (Novikov et al., 2025) evolves candidate programs through execution-based evalu- ation, targeting task artifacts rather than the agent’s improvement procedure. Self-Refine (Madaan et al., 2023) iteratively revises outputs using self- feedback, while Reflexion ("
+      },
+      "sections": [
+        {
+          "id": "component",
+          "title": "组件优化与固定联合更新",
+          "items": [
+            {
+              "text": "STaR 改模型参数，AFlow、DSPy、GEPA 等优化工作流或提示，AlphaEvolve 改执行产物；Reflexion、Voyager 则积累反思或可执行技能。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Many approaches to agent self-improvement optimize a single predefined component. STaR (Zelikman et al., 2022) improves model parameters by re- peatedly fine-tuning on self-generated rationales that yield correct answers. AFlow (Zhang et al., 2025) searches code-represented workflows, while Recursive Harness Self-Improvement (Lee et al., 2026) refines prompt-level harness specifications using pairwise feedback over revision histories. Related approaches include DSPy (Khattab et al., 2024) for language-model pipeline optimization, GEPA (Agrawal et al., 2026) for reflective prompt evolution, and ADAS (Hu et al., 2025) for meta- agent-guided search over agent programs. In con- trast, AlphaEvolve (Novikov et al., 2025) evolves candidate programs through execution-based evalu- ation, targeting task artifacts rather than the agent’s improvement procedure. Self-Refine (Madaan et al., 2023) iteratively revises outputs using self- feedback, while Reflexion (Shinn et al., 2023) retains verbal re"
+            },
+            {
+              "text": "Co-Harness、HarnessForge 交替修改模型与框架，着重改善兼容性；其预设更新顺序未直接解决随瓶颈改变干预目标的问题。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Co-Harness (Chen et al., 2026d) and HarnessForge (Chen et al., 2026b) connect external structure and internal ca- pability by alternating harness refinement with model optimization. Their coupled updates address model–harness compatibility, but the prescribed update order leaves open how to adapt workflow orchestration targets to evolving bottlenecks. Adaptive and Recursive Self-Improvement. Beyond prescribed alternation, SIA (Hebbar et al., 2026) uses trajectory and performance feedback to choose between harness and weight updates, while its selection policy relies on a frozen language- 2 "
+            }
+          ]
+        },
+        {
+          "id": "meta",
+          "title": "适应性选择与元层递归",
+          "items": [
+            {
+              "text": "SIA 用轨迹反馈选择框架或权重更新，但选择器依赖冻结模型先验；HASE 把解题与框架编辑纳入同一动作空间。",
+              "kind": "paper",
+              "source_pages": [
+                2
+              ],
+              "quote": "Beyond prescribed alternation, SIA (Hebbar et al., 2026) uses trajectory and performance feedback to choose between harness and weight updates, while its selection policy relies on a frozen language- 2 "
+            },
+            {
+              "text": "Hyperagents 与 MetaSkill-Evolve 让改进者或改进技能本身可演化。RSIFlow 则用工作流结果持续修订元智能体的技能和执行接口。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "A com- plementary direction makes the improver itself editable: Hyperagents (Zhang et al., 2026c) co- evolves task-agent and meta-agent programs and demonstrates transferable improvement strategies, whereas MetaSkill-Evolve (Wang et al., 2026) re- cursively updates task skills and their improve- ment procedures on different timescales. Building on these complementary directions, RSIFlow cou- ples bottleneck-aware workflow orchestration with feedback-driven Meta-Harness evolution. 3 Methodology Fig. 2 provides an overview of RSIFlow. Sec. 3.1 formalizes the Task-Agent and Meta-Agent sys- tem and the recursive self-improvement process. Sec. 3.2 describes how the Meta-Agent adap- tively orchestrates component-specific improve- ment workflows. Finally, Sec. 3.3 presents how the Meta-Agent evolves through multi-level skill formation and Meta-Harness refinement. 3.1 Preliminary Agent Formulation. At evolution round t , we formulate the recursive self-improvement system as the joint state of "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "method",
+      "title": "方法",
+      "summary": {
+        "text": "**任务层选一种组件更新，元层总结所有尝试。** 元模型参数保持冻结，递归演化发生在元智能体的 harness 和技能库中。",
+        "kind": "paper",
+        "source_pages": [
+          3
+        ],
+        "quote": "Agent Formulation. At evolution round t , we formulate the recursive self-improvement system as the joint state of a Task-Agent T t and a Meta- Agent M t . The Task-Agent executes tasks, while the Meta-Agent coordinates updates to the Task- Agent’s components and refines itself using feed- back from updates. The system state is defined as X t = ( T t , M t ) , M t = ( ϕ, H Meta t ) , T t = ( θ t , H Task t , A Task t ) . (1) Here, θ t denotes the Task-Agent’s model parame- ters, H Task t denotes the external harness, and A Task t denotes task-level deliverables, such as executable code and solutions, that can be refined through environmental feedback. The Meta-Agent’s base model parameters ϕ remain fixed throughout the process, and its evolution occurs entirely through modifications to its harness H Meta t . We define a harness as the execution interface external to the model and adopt the same three- component abstraction for both agents: H r t = (Action r t , Skill r t , Planning r t"
+      },
+      "sections": [
+        {
+          "id": "state",
+          "title": "图 2a · 任务智能体与元智能体",
+          "items": [
+            {
+              "text": "任务智能体包含模型参数、执行框架和任务产物；元智能体负责诊断与改进编排。两者都用 Action、Skill、Planning 描述框架。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "Here, θ t denotes the Task-Agent’s model parame- ters, H Task t denotes the external harness, and A Task t denotes task-level deliverables, such as executable code and solutions, that can be refined through environmental feedback. The Meta-Agent’s base model parameters ϕ remain fixed throughout the process, and its evolution occurs entirely through modifications to its harness H Meta t . We define a harness as the execution interface external to the model and adopt the same three- component abstraction for both agents: H r t = (Action r t , Skill r t , Planning r t ) , r ∈ { Task , Meta } . (2) Action organizes execution and information actions. Skill provides reusable experience and principles, while Planning decomposes objectives into steps. The Task-Agent harness supports task execution, 3 "
+            },
+            {
+              "text": "“元智能体演化”并非训练元模型权重：其参数 $\\phi$ 固定，改变的是执行接口、技能调用和指导流程。",
+              "kind": "paper",
+              "source_pages": [
+                3
+              ],
+              "quote": "The Meta-Agent’s base model parameters ϕ remain fixed throughout the process, and its evolution occurs entirely through modifications to its harness H Meta t . We define a harness as the execution interface external to the model and adopt the same three- component abstraction for both agents: H r t = (Action r t , Skill r t , Planning r t ) , r ∈ { Task , Meta } . (2) Action organizes execution and information actions. Skill provides reusable experience and principles, while Planning decomposes objectives into steps. The Task-Agent harness supports task execution, 3 "
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-2a"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\begin{aligned}T_t&=(\\theta_t,H_t^{\\mathrm{Task}},A_t^{\\mathrm{Task}}),\\\\M_t&=(\\phi,H_t^{\\mathrm{Meta}}),\\quad X_t=(T_t,M_t)\\end{aligned}",
+              "explanation": "θ 是任务模型参数；H 是框架；A 是代码或解决方案等任务产物。",
+              "source_pages": [
+                3
+              ],
+              "quote": "Agent Formulation. At evolution round t , we formulate the recursive self-improvement system as the joint state of a Task-Agent T t and a Meta- Agent M t . The Task-Agent executes tasks, while the Meta-Agent coordinates updates to the Task- Agent’s components and refines itself using feed- back from updates. The system state is defined as X t = ( T t , M t ) , M t = ( ϕ, H Meta t ) , T t = ( θ t , H Task t , A Task t ) . (1) Here, θ t denotes the Task-Agent’s model parame- ters, H Task t denotes the external harness, and A Task t denotes task-level deliverables, such as executable code and solutions, that can be refined through environmental feedback. The Meta-Agent’s base model parameters ϕ remain fixed throughout the process, and its evolution occurs entirely through modifications to its harness H Meta t . We define a harness as the execution interface external to the model and adopt the same three- component abstraction for both agents: H r t = (Action r t , Skill r t , Planning r t"
+            }
+          ]
+        },
+        {
+          "id": "choose",
+          "title": "图 2b–c · 按瓶颈选择一次更新",
+          "items": [
+            {
+              "text": "元智能体读取执行轨迹、环境反馈和已有技能，在 Model、Harness、Artifacts 中选择一个目标；其余两个组件保持不变。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Workflow selection and instantiation. The Meta-Agent adaptively orchestrates three component-specific improvement workflows: a t ∈ { Model , Harness , Artifacts } . (3) Using execution trajectories, environmental feed- back, and accumulated meta-skills, the Meta-Agent selects a component to modify while preserving the other two. All candidates share the same parent T t and evaluation batch. The first valid candidate with a positive gain is accepted as T t +1 ; otherwise, T t +1 = T t . Feedback from all update attempts informs subsequent Meta-Agent evolution. Model update. The Meta-Agent converts task experience into parameter updates. It constructs training data D t from execution trajectories and en- vironmental feedback, then optimizes the following objective starting from θ t : min θ L ( θ ; D t ) = E z ∼D t \u0002 ℓ ( θ ; z ) \u0003 . (4) Here, z is a training sample or sample group, and ℓ is the method-specific loss. Our default update uses SFT to learn from successful trajectories collect"
+            },
+            {
+              "text": "候选与父代使用同一任务批次比较。预算内遇到第一个有效且增益为正的候选就接受，否则保留父代；全部尝试都进入后续经验提炼。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "All candidates share the same parent T t and evaluation batch. The first valid candidate with a positive gain is accepted as T t +1 ; otherwise, T t +1 = T t . Feedback from all update attempts informs subsequent Meta-Agent evolution. Model update. The Meta-Agent converts task experience into parameter updates. It constructs training data D t from execution trajectories and en- vironmental feedback, then optimizes the following objective starting from θ t : min θ L ( θ ; D t ) = E z ∼D t \u0002 ℓ ( θ ; z ) \u0003 . (4) Here, z is a training sample or sample group, and ℓ is the method-specific loss. Our default update uses SFT to learn from successful trajectories collected during task execution. Reusing these trajectories reduces the exploration cost of acquiring training data. The candidate inherits the updated parameters θ ′ alongside the parent’s Harness and Artifacts. We also evaluate an RL-based model-update variant, with details provided in App. B.3. Harness update. The Meta-Agent uses exe"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-2bc"
+            }
+          ]
+        },
+        {
+          "id": "model",
+          "title": "路径一：更新模型参数",
+          "items": [
+            {
+              "text": "默认从成功轨迹构造数据做 SFT，复用已有执行经验，降低新增探索成本。候选继承父代的框架和产物，只更换模型参数。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Model update. The Meta-Agent converts task experience into parameter updates. It constructs training data D t from execution trajectories and en- vironmental feedback, then optimizes the following objective starting from θ t : min θ L ( θ ; D t ) = E z ∼D t \u0002 ℓ ( θ ; z ) \u0003 . (4) Here, z is a training sample or sample group, and ℓ is the method-specific loss. Our default update uses SFT to learn from successful trajectories collected during task execution. Reusing these trajectories reduces the exploration cost of acquiring training data. The candidate inherits the updated parameters θ ′ alongside the parent’s Harness and Artifacts. We also evaluate an RL-based model-update variant, with details provided in App. B.3. Harness update. The Meta-Agent uses execu- tion feedback to select a component set I t ⊆ C , where C = { Action , Skill , Planning } . It follows a localize–refine–generate–validate procedure to produce new implementations b H I t t . The candidate Harness replaces the sele"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\min_\\theta\\mathcal L(\\theta;\\mathcal D_t)=\\mathbb E_{z\\sim\\mathcal D_t}[\\ell(\\theta;z)]",
+              "explanation": "z 是样本或样本组，ℓ 为所选训练方法的损失；正文默认 SFT。",
+              "source_pages": [
+                4
+              ],
+              "quote": "Model update. The Meta-Agent converts task experience into parameter updates. It constructs training data D t from execution trajectories and en- vironmental feedback, then optimizes the following objective starting from θ t : min θ L ( θ ; D t ) = E z ∼D t \u0002 ℓ ( θ ; z ) \u0003 . (4) Here, z is a training sample or sample group, and ℓ is the method-specific loss. Our default update uses SFT to learn from successful trajectories collected during task execution. Reusing these trajectories reduces the exploration cost of acquiring training data. The candidate inherits the updated parameters θ ′ alongside the parent’s Harness and Artifacts. We also evaluate an RL-based model-update variant, with details provided in App. B.3. Harness update. The Meta-Agent uses execu- tion feedback to select a component set I t ⊆ C , where C = { Action , Skill , Planning } . It follows a localize–refine–generate–validate procedure to produce new implementations b H I t t . The candidate Harness replaces the sele"
+            }
+          ]
+        },
+        {
+          "id": "harness",
+          "title": "路径二：修改执行框架",
+          "items": [
+            {
+              "text": "在 Action、Skill、Planning 中选定需修改的组件，依次定位、修订、生成与验证。可改变提示、上下文、记忆检索、规划规则、工具编排或内部检查。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Harness update. The Meta-Agent uses execu- tion feedback to select a component set I t ⊆ C , where C = { Action , Skill , Planning } . It follows a localize–refine–generate–validate procedure to produce new implementations b H I t t . The candidate Harness replaces the selected components while preserving the others: H ′ = H Task t h I t ← b H I t t i . (5) The replacement operator rewrites the selected components and preserves the rest. Revisions may change prompts, context organization, memory re- trieval, planning and reasoning rules, tool orches- tration, or internal verification, subject to the corre- sponding interface and permission constraints. For example, jointly revising memory retrieval condi- tions and planning rules constitutes a single Har- ness update. Model parameters remain fixed. Artifacts refinement. For each task x ∈ B t , let A t,x denote its current output. The Meta-Agent derives diagnostic guidance δ t,x from execution trajectories τ t,x and feedback f t,x . Kee"
+            },
+            {
+              "text": "修改必须遵守接口和权限约束；模型参数冻结。一次 Harness 更新可以联合调整多个框架子组件。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "The replacement operator rewrites the selected components and preserves the rest. Revisions may change prompts, context organization, memory re- trieval, planning and reasoning rules, tool orches- tration, or internal verification, subject to the corre- sponding interface and permission constraints. For example, jointly revising memory retrieval condi- tions and planning rules constitutes a single Har- ness update. Model parameters remain fixed. Artifacts refinement. For each task x ∈ B t , let A t,x denote its current output. The Meta-Agent derives diagnostic guidance δ t,x from execution trajectories τ t,x and feedback f t,x . Keeping the Task-Agent’s model and harness fixed, candidate revisions are generated as ˆ A ( j ) t,x ∼ p θ t ,H Task t ( · | x, A t,x , τ t,x , f t,x , δ t,x ) , (6) where j ≤ L indexes bounded revision attempts. Let ˆ A ( j ) t collect the revised outputs and ˆ T ( j ) t = ( θ t , H Task t , ˆ A ( j ) t ) . Each candidate is evaluated against the same task bat"
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": "路径三：修复当前任务产物",
+          "items": [
+            {
+              "text": "元智能体给出诊断指导，由任务智能体修订代码或解答，并执行、检查和重新提交。元智能体不直接代改产物，模型与框架保持固定。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Artifacts refinement. For each task x ∈ B t , let A t,x denote its current output. The Meta-Agent derives diagnostic guidance δ t,x from execution trajectories τ t,x and feedback f t,x . Keeping the Task-Agent’s model and harness fixed, candidate revisions are generated as ˆ A ( j ) t,x ∼ p θ t ,H Task t ( · | x, A t,x , τ t,x , f t,x , δ t,x ) , (6) where j ≤ L indexes bounded revision attempts. Let ˆ A ( j ) t collect the revised outputs and ˆ T ( j ) t = ( θ t , H Task t , ˆ A ( j ) t ) . Each candidate is evaluated against the same task batch: ∆ J ( j ) t = J ( ˆ T ( j ) t ; B t ) − J ( T t ; B t ) . (7) Here, B t denotes a training batch. The gain-based acceptance rule is not applied to evaluation set. The first valid candidate yielding a positive perfor- mance gain is selected: j ∗ = min n j ≤ L V ( ˆ A ( j ) t ) = 1 , ∆ J ( j ) t > 0 o , (8) where V enforces output validity and execution constraints. The Meta-Agent provides diagnostic guidance without directly modifying task art"
+            },
+            {
+              "text": "正增益接受规则只用于训练批次，不在评测集上按收益挑选候选。有效性检查与预算限制共同约束尝试。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Here, B t denotes a training batch. The gain-based acceptance rule is not applied to evaluation set. The first valid candidate yielding a positive perfor- mance gain is selected: j ∗ = min n j ≤ L V ( ˆ A ( j ) t ) = 1 , ∆ J ( j ) t > 0 o , (8) where V enforces output validity and execution constraints. The Meta-Agent provides diagnostic guidance without directly modifying task artifacts, while θ t and H Task t remain unchanged. Recursive self-improvement workflow. At evo- lution round t , the Meta-Agent M t orchestrates and evaluates candidate updates to the Task-Agent T t , yielding the next-round Task-Agent T t +1 and work- flow experience e t . It distills component-specific skills and general principles from this experience, integrating them into its Meta-Harness to form M t +1 . The updated knowledge guides diagnosis, workflow selection, and candidate generation in subsequent rounds as the Task-Agent’s bottlenecks evolve. Together, ( T t +1 , M t +1 ) enter the next evo- lution r"
+            }
+          ],
+          "emphasis": true,
+          "formulas": [
+            {
+              "latex": "\\Delta J_t^{(j)}=J(\\widehat T_t^{(j)};B_t)-J(T_t;B_t)",
+              "explanation": "在同一训练批次 Bₜ 上比较；有效且 ΔJ>0 才接受，否则重试或保留父代。",
+              "source_pages": [
+                4
+              ],
+              "quote": "Each candidate is evaluated against the same task batch: ∆ J ( j ) t = J ( ˆ T ( j ) t ; B t ) − J ( T t ; B t ) . (7) Here, B t denotes a training batch. The gain-based acceptance rule is not applied to evaluation set. The first valid candidate yielding a positive perfor- mance gain is selected: j ∗ = min n j ≤ L V ( ˆ A ( j ) t ) = 1 , ∆ J ( j ) t > 0 o , (8) where V enforces output validity and execution constraints. The Meta-Agent provides diagnostic guidance without directly modifying task artifacts, while θ t and H Task t remain unchanged. Recursive self-improvement workflow. At evo- lution round t , the Meta-Agent M t orchestrates and evaluates candidate updates to the Task-Agent T t , yielding the next-round Task-Agent T t +1 and work- flow experience e t . It distills component-specific skills and general principles from this experience, integrating them into its Meta-Harness to form M t +1 . The updated knowledge guides diagnosis, workflow selection, and candidate generation "
+            }
+          ]
+        },
+        {
+          "id": "meta-update",
+          "title": "图 2d · 把干预结果变成可复用经验",
+          "items": [
+            {
+              "text": "按共享子目标、工具事件或错误反馈对齐父代与候选轨迹，把修改、行为变化与最终结果联系起来；既提炼组件专属技能，也提炼跨组件原则。",
+              "kind": "paper",
+              "source_pages": [
+                4
+              ],
+              "quote": "Difference extraction and skill formation. The Meta-Agent aligns parent and candidate trajecto- ries for the same task through shared subgoals, tool events, or error feedback. These paired compar- isons connect candidate modifications to local be- havioral changes and task-level outcomes. From these comparisons and workflow experience e t , the Meta-Agent distills two complementary forms of reusable knowledge: component-specific skills S t 4 "
+            },
+            {
+              "text": "每条记录包含适用条件、修改范围、条件化指导、应保持的约束、预期行为，以及支持和反对证据。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Each skill or principle is represented as k = (Ω k , a k , ρ k , Γ k , ˆ r k , E k ) , (9) where Ω k specifies applicability conditions, a k up- date scope, ρ k conditional guidance, Γ k preserva- tion requirements, ˆ r k expected behavioral response, and E k supporting and contradicting evidence. Evidence-driven skill maintenance. The Meta- Agent integrates newly distilled skills S t and gen- eral principles P t into the existing library K t through four evidence-driven operations. Add in- troduces previously uncovered strategies with their applicability and source evidence. Supplement en- riches existing entries with new outcome evidence while preserving their guidance. Revise refines applicability conditions, guidance, or preservation requirements through linked successor versions. Merge consolidates overlapping or superseded en- tries while preserving accumulated evidence and provenance. These operations update the library as C t = S t ∪ P t , K t +1 = ( K t \\ R t ) ∪ C + t . (10) "
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-2d"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "k=(\\Omega_k,a_k,\\rho_k,\\Gamma_k,\\widehat r_k,E_k)",
+              "explanation": "依次表示适用条件、范围、指导、保持约束、预期响应与证据。",
+              "source_pages": [
+                5
+              ],
+              "quote": "Each skill or principle is represented as k = (Ω k , a k , ρ k , Γ k , ˆ r k , E k ) , (9) where Ω k specifies applicability conditions, a k up- date scope, ρ k conditional guidance, Γ k preserva- tion requirements, ˆ r k expected behavioral response, and E k supporting and contradicting evidence. Evidence-driven skill maintenance. The Meta- Agent integrates newly distilled skills S t and gen- eral principles P t into the existing library K t through four evidence-driven operations. Add in- troduces previously uncovered strategies with their applicability and source evidence. Supplement en- riches existing entries with new outcome evidence while preserving their guidance. Revise refines applicability conditions, guidance, or preservation requirements through linked successor versions. Merge consolidates overlapping or superseded en- tries while preserving accumulated evidence and provenance. These operations update the library as C t = S t ∪ P t , K t +1 = ( K t \\ R t ) ∪ C + t . (10) "
+            }
+          ]
+        },
+        {
+          "id": "maintenance",
+          "title": "维护技能库，再接入执行流程",
+          "items": [
+            {
+              "text": "**Add** 增加新策略；**Supplement** 追加证据；**Revise** 修改条件或指导并保留版本联系；**Merge** 合并重叠记录并保存来源。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Evidence-driven skill maintenance. The Meta- Agent integrates newly distilled skills S t and gen- eral principles P t into the existing library K t through four evidence-driven operations. Add in- troduces previously uncovered strategies with their applicability and source evidence. Supplement en- riches existing entries with new outcome evidence while preserving their guidance. Revise refines applicability conditions, guidance, or preservation requirements through linked successor versions. Merge consolidates overlapping or superseded en- tries while preserving accumulated evidence and provenance. These operations update the library as C t = S t ∪ P t , K t +1 = ( K t \\ R t ) ∪ C + t . (10) Here, C + t contains records introduced or updated through the four operations, while R t ⊆ K t denotes entries replaced or consolidated in the active library. The resulting library combines component-specific skills and cross-component principles while retaining traceable evidence and revision his"
+            },
+            {
+              "text": "更新后的知识要接入 Action 接口、检索调用与执行指令，才能改变下一轮诊断和候选生成。技能库不是只保存一段总结文字。",
+              "kind": "interpretation",
+              "source_pages": [
+                5
+              ],
+              "quote": "Integration into the Meta-Harness. The Meta- Agent operationalizes K t +1 by updating the Action interfaces, retrieval calls, execution instructions, and supplementary prompts that invoke this knowl- edge to guide subsequent improvement decisions: H Meta t +1 = (Action Meta t +1 , K t +1 , Planning Meta t ) , M t +1 = ( ϕ, H Meta t +1 ) . (11) The evolved Meta-Harness guides subsequent bot- tleneck diagnosis, workflow selection, and candi- date generation. Thus, experience accumulated from Task-Agent updates recursively improves workflow orchestration, while the Meta-Agent’s model parameters ϕ remain fixed. 4 Experiments 4.1 Experimental Setup Benchmarks. We train RSIFlow on training data from three task domains and evaluate it on six pub- lic benchmarks spanning the same domains: (1) code generation, HumanEval+ and MBPP+ (Liu et al., 2023). (2) tool use, BFCL-v3 (Patil et al., 2025) and ACEBench (Chen et al., 2025). (3) search-QA, HotpotQA (Yang et al., 2018) and 2Wiki (Ho et al., 202"
+            }
+          ],
+          "formulas": [
+            {
+              "latex": "\\mathcal K_{t+1}=(\\mathcal K_t\\setminus R_t)\\cup C_t^+",
+              "explanation": "Rₜ 为被替换或合并的旧记录，Cₜ⁺ 为新增及更新记录；保留证据与修订历史。",
+              "source_pages": [
+                5
+              ],
+              "quote": "These operations update the library as C t = S t ∪ P t , K t +1 = ( K t \\ R t ) ∪ C + t . (10) Here, C + t contains records introduced or updated through the four operations, while R t ⊆ K t denotes entries replaced or consolidated in the active library. The resulting library combines component-specific skills and cross-component principles while retaining traceable evidence and revision histories across rounds. Further details are provided in App. D.2. Integration into the Meta-Harness. The Meta- Agent operationalizes K t +1 by updating the Action interfaces, retrieval calls, execution instructions, and supplementary prompts that invoke this knowl- edge to guide subsequent improvement decisions: H Meta t +1 = (Action Meta t +1 , K t +1 , Planning Meta t ) , M t +1 = ( ϕ, H Meta t +1 ) . (11) The evolved Meta-Harness guides subsequent bot- tleneck diagnosis, workflow selection, and candi- date generation. Thus, experience accumulated from Task-Agent updates recursively improves workflo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "experiments",
+      "title": "实验",
+      "summary": {
+        "text": "六个基准、两种任务模型规模检验跨领域收益；消融和同一初始任务智能体上的元版本比较，用于分离两层改进的贡献。",
+        "kind": "paper",
+        "source_pages": [
+          5
+        ],
+        "quote": "Benchmarks. We train RSIFlow on training data from three task domains and evaluate it on six pub- lic benchmarks spanning the same domains: (1) code generation, HumanEval+ and MBPP+ (Liu et al., 2023). (2) tool use, BFCL-v3 (Patil et al., 2025) and ACEBench (Chen et al., 2025). (3) search-QA, HotpotQA (Yang et al., 2018) and 2Wiki (Ho et al., 2020). Detailed descriptions and evaluation metrics are in App. A.2 Baselines. We compare RSIFlow with three se- ries of baselines: (1) model-only evolution , includ- ing SFT (Ouyang et al., 2022) and GRPO (Shao et al., 2024); (2) harness-only evolution , includ- ing AFlow (Zhang et al., 2025) and Mermaid- Flow (Zheng et al., 2025); (3) model-harness both evolution, including HarnessForge (Chen et al., 2026b) and SIA (Hebbar et al., 2026), Hypera- gent (Zhang et al., 2026c) further evolves the har- ness of the meta agent, incorporating the evolution of the meta into the cycle. Detailed configurations of baselines are provided in App. A.4 Implement"
+      },
+      "sections": [
+        {
+          "id": "setup",
+          "title": "领域、模型与演化预算",
+          "items": [
+            {
+              "text": "代码：HumanEval+、MBPP+；工具：BFCL-v3、ACEBench；检索问答：HotpotQA、2Wiki。基线覆盖模型单独更新、框架单独更新及联合／元层方法。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Benchmarks. We train RSIFlow on training data from three task domains and evaluate it on six pub- lic benchmarks spanning the same domains: (1) code generation, HumanEval+ and MBPP+ (Liu et al., 2023). (2) tool use, BFCL-v3 (Patil et al., 2025) and ACEBench (Chen et al., 2025). (3) search-QA, HotpotQA (Yang et al., 2018) and 2Wiki (Ho et al., 2020). Detailed descriptions and evaluation metrics are in App. A.2 Baselines. We compare RSIFlow with three se- ries of baselines: (1) model-only evolution , includ- ing SFT (Ouyang et al., 2022) and GRPO (Shao et al., 2024); (2) harness-only evolution , includ- ing AFlow (Zhang et al., 2025) and Mermaid- Flow (Zheng et al., 2025); (3) model-harness both evolution, including HarnessForge (Chen et al., 2026b) and SIA (Hebbar et al., 2026), Hypera- gent (Zhang et al., 2026c) further evolves the har- ness of the meta agent, incorporating the evolution of the meta into the cycle. Detailed configurations of baselines are provided in App. A.4 Implement"
+            },
+            {
+              "text": "Task-Agent 为 Qwen3-4B 或 8B；Meta-Agent 为 GPT-5.6 Sol。主实验演化 **5 轮，每轮至多 2 次尝试**。",
+              "kind": "paper",
+              "source_pages": [
+                5
+              ],
+              "quote": "Implementation Details. We initialize the Task- Agent of RSIF LOW with Qwen3-4B and Qwen3- 8B (Yang et al., 2025) as the backbone, respec- tively. The Meta-Agent uses GPT-5.6 Sol as its base model. We run R = 5 evolution rounds and report the main results with a maximum of two attempts per evolution round. Additional imple- mentation details are provided in App. B 4.2 Main Results Tab. 1 compares RSIF LOW against model-only, harness-only, and joint model–harness baselines on six agentic benchmarks and two backbone sizes, averaging +3.11% over the strongest per- metric baselines. RSIF LOW leads in 11 of 12 benchmark–backbone settings across code gener- ation, tool use, and search-QA. Its overall scores reach 51.21% with Qwen3-4B and 59.86% with Qwen3-8B, surpassing the strongest baseline by 6.06% and 3.86%, respectively. The largest gain oc- curs on HumanEval+, where RSIF LOW improves pass@1 by 14.02% with Qwen3-4B. On MBPP+, pass@1 improves by an average of 3.91% across backbones. For "
+            }
+          ]
+        },
+        {
+          "id": "results",
+          "title": "表 1 · 12 个设置中的 11 个领先",
+          "items": [
+            {
+              "text": "整体分数为 **51.21%（4B）/ 59.86%（8B）**，分别比最强整体基线高 6.06 / 3.86 个百分点。4B 的 HumanEval+ 从最强基线 54.27% 提高到 68.29%。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "Method Code Tool Use SearchQA Overall HumanEval+ MBPP+ BFCL-v3 ACEBench Hotpot 2Wiki Qwen3-4B AFlow 39.63 53.37 26.32 34.00 52.59 38.45 40.73 MermaidFlow 48.78 57.87 28.19 31.58 56.32 38.79 43.59 SFT 39.63 55.62 26.88 29.82 53.52 41.24 41.12 GRPO 43.90 55.06 22.30 37.25 54.39 39.32 42.04 HarnessForge 54.27 62.36 22.39 25.03 52.38 30.91 41.22 SIA 53.66 60.11 29.00 33.91 52.51 41.68 45.15 Hyperagent 43.90 52.81 26.88 31.57 51.82 40.59 41.26 RSIFLow 68.29 66.29 29.23 38.00 56.72 48.72 51.21 Qwen3-8B AFlow 68.29 69.10 34.89 51.46 53.55 48.32 54.27 MermaidFlow 69.51 68.54 30.96 46.20 56.29 42.70 52.37 SFT 68.29 69.10 37.01 40.35 51.57 44.49 51.80 GRPO 70.12 69.66 34.31 38.59 49.81 46.33 51.47 HarnessForge 70.12 67.42 38.15 59.07 45.83 37.12 52.95 SIA 73.78 70.22 40.13 51.46 53.96 46.43 56.00 Hyperagent 71.34 69.10 34.31 44.44 53.47 48.73 53.57 RSIFLow 76.34 74.10 41.36 52.62 62.67 52.08 59.86 retrieval-intensive tasks, it improves F1 by an av- erage of 5.20% on 2Wiki across backbones and by"
+            },
+            {
+              "text": "例外是 **8B 的 ACEBench**：RSIFlow 为 52.62%，低于 HarnessForge 的 59.07%。不能把整体表现或 11/12 的领先概括为每一项都最好。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "Qwen3-8B backbones. Best results are highlighted in bold. Method Code Tool Use SearchQA Overall HumanEval+ MBPP+ BFCL-v3 ACEBench Hotpot 2Wiki Qwen3-4B AFlow 39.63 53.37 26.32 34.00 52.59 38.45 40.73 MermaidFlow 48.78 57.87 28.19 31.58 56.32 38.79 43.59 SFT 39.63 55.62 26.88 29.82 53.52 41.24 41.12 GRPO 43.90 55.06 22.30 37.25 54.39 39.32 42.04 HarnessForge 54.27 62.36 22.39 25.03 52.38 30.91 41.22 SIA 53.66 60.11 29.00 33.91 52.51 41.68 45.15 Hyperagent 43.90 52.81 26.88 31.57 51.82 40.59 41.26 RSIFLow 68.29 66.29 29.23 38.00 56.72 48.72 51.21 Qwen3-8B AFlow 68.29 69.10 34.89 51.46 53.55 48.32 54.27 MermaidFlow 69.51 68.54 30.96 46.20 56.29 42.70 52.37 SFT 68.29 69.10 37.01 40.35 51.57 44.49 51.80 GRPO 70.12 69.66 34.31 38.59 49.81 46.33 51.47 HarnessForge 70.12 67.42 38.15 59.07 45.83 37.12 52.95 SIA 73.78 70.22 40.13 51.46 53.96 46.43 56.00 Hyperagent 71.34 69.10 34.31 44.44 53.47 48.73 53.57 RSIFLow 76.34 74.10 41.36 52.62 62.67 52.08 59.86 retrieval-intensive tasks, it improves F1"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "table-1"
+            }
+          ]
+        },
+        {
+          "id": "ablation",
+          "title": "表 2 · 自适应选择和元演化缺一不可",
+          "items": [
+            {
+              "text": "完整方法的 Code / Tool Use / SearchQA 为 **67.29 / 33.62 / 52.72**。禁用元演化后为 56.73 / 29.70 / 49.98，三领域平均下降约 5.74 个百分点。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "Table 2: Module ablation of RSIFlow using Qwen3- 4B under R = 5 evolution rounds. With meta evolution enabled, we compare fixed task-evolution routines tar- geting the harness (H), model (M), or artifacts (A). Meta Task Code Tool use SearchQA Evo. Rou. Vanilla 48.25 29.70 34.52 × ✓ 56.73 ( ↑ 8.48) 29.70 ( → 0.00) 49.98 ( ↑ 15.46) ✓ × ( H ) 63.42 ( ↑ 15.17) 32.93 ( ↑ 3.23) 44.89 ( ↑ 10.37) ✓ × ( M ) 50.31 ( ↑ 2.06) 32.15 ( ↑ 2.45) 44.73 ( ↑ 10.21) ✓ × ( A ) 52.34 ( ↑ 4.09) 30.69 ( ↑ 0.99) 52.57 ( ↑ 18.05) ✓ ✓ 67.29 ( ↑ 19.04 ) 33.62 ( ↑ 3.92 ) 52.72 ( ↑ 18.20 ) 4.4 Framework Analysis Rollout-budget and performance efficiency. Fig. 3 compares performance under varying rollout budgets on all six benchmarks. RSIFlow generally lies on or near the empirical Pareto frontier and achieves the highest observed score on each bench- 6 "
+            },
+            {
+              "text": "固定只改 H、M 或 A 各有偏科；自适应编排的三个领域得分均更高。原表保留了相对 Vanilla 的变化，不应与跨论文主表混比。",
+              "kind": "interpretation",
+              "source_pages": [
+                6
+              ],
+              "quote": "Meta Task Code Tool use SearchQA Evo. Rou. Vanilla 48.25 29.70 34.52 × ✓ 56.73 ( ↑ 8.48) 29.70 ( → 0.00) 49.98 ( ↑ 15.46) ✓ × ( H ) 63.42 ( ↑ 15.17) 32.93 ( ↑ 3.23) 44.89 ( ↑ 10.37) ✓ × ( M ) 50.31 ( ↑ 2.06) 32.15 ( ↑ 2.45) 44.73 ( ↑ 10.21) ✓ × ( A ) 52.34 ( ↑ 4.09) 30.69 ( ↑ 0.99) 52.57 ( ↑ 18.05) ✓ ✓ 67.29 ( ↑ 19.04 ) 33.62 ( ↑ 3.92 ) 52.72 ( ↑ 18.20 ) 4.4 Framework Analysis Rollout-budget and performance efficiency. Fig. 3 compares performance under varying rollout budgets on all six benchmarks. RSIFlow generally lies on or near the empirical Pareto frontier and achieves the highest observed score on each bench- 6 "
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "table-2"
+            }
+          ]
+        },
+        {
+          "id": "budget",
+          "title": "图 3 · rollout 预算与性能",
+          "items": [
+            {
+              "text": "六个任务中，RSIFlow 大多处于或接近经验 Pareto 前沿。轨迹同时服务于定向更新与技能提炼，减少仅靠额外探索寻找收益的需求。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "This advantage is consistent with its adaptive component selection and Task–Meta co-evolution: RSIFlow reuses rollout evidence to guide targeted updates to the Task-Agent’s Model, Harness, or Artifacts, rather than relying solely on additional exploration under a fixed harness. The co-evolving Meta-Agent further distills workflow outcomes into reusable skills and refines its improvement proce- dure, allowing accumulated experience to guide subsequent updates. Together, these mechanisms help concentrate the rollout budget on informed workflow orchestration. Overall, RSIFlow offers a stronger performance–budget trade-off than the evaluated baselines. Meta-agent backbone sensitivity. We evaluate RSIFlow with three Meta-Agent backbones over five evolution rounds on HumanEval+. As shown in Fig. 4, all three models achieve overall performance improvements, with gains of 11.48%, 5.09%, and 24.41% for Claude-Sonnet-5, DeepSeek-V4.1- Flash, and GPT-5.6-Sol, respectively. GPT-5.6-Sol achieves th"
+            },
+            {
+              "text": "图中横轴是 rollout 小计；元智能体的 token 消耗另行分析，不能将这张图直接解释成总成本最低。",
+              "kind": "interpretation",
+              "source_pages": [
+                7
+              ],
+              "quote": "Rollout subtotal (K) 10 15 20 25 30 35 40 (d) ACEBench 1.2 3 6 9 12 16 20 Rollout subtotal (K) 48 50 52 54 56 58 (e) HotpotQA 1.2 3 6 9 12 16 20 Rollout subtotal (K) 36 38 40 42 44 46 48 50 (f) 2Wiki AFlow MermaidFlow SFT GRPO SIA HarnessForge Hyperagent RSIFlow Pareto boundary Score (%) Score (%) 24 28 32 8 12 16 23.31 27.66 30.91 Figure 3: Budget–performance Pareto analysis across all six benchmarks mark. This advantage is consistent with its adaptive component selection and Task–Meta co-evolution: RSIFlow reuses rollout evidence to guide targeted updates to the Task-Agent’s Model, Harness, or Artifacts, rather than relying solely on additional exploration under a fixed harness. The co-evolving Meta-Agent further distills workflow outcomes into reusable skills and refines its improvement proce- dure, allowing accumulated experience to guide subsequent updates. Together, these mechanisms help concentrate the rollout budget on informed workflow orchestration. Overall, RSIFlow offers a "
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-3"
+            }
+          ]
+        },
+        {
+          "id": "meta-backbone",
+          "title": "图 4 · 更强元智能体也可能更贵",
+          "items": [
+            {
+              "text": "HumanEval+ 上三种元模型都改善结果。GPT-5.6-Sol 最终达到 **68.29%**，但 API token 消耗更高；元模型能力会影响经验利用与累计收益。",
+              "kind": "paper",
+              "source_pages": [
+                7
+              ],
+              "quote": "Meta-agent backbone sensitivity. We evaluate RSIFlow with three Meta-Agent backbones over five evolution rounds on HumanEval+. As shown in Fig. 4, all three models achieve overall performance improvements, with gains of 11.48%, 5.09%, and 24.41% for Claude-Sonnet-5, DeepSeek-V4.1- Flash, and GPT-5.6-Sol, respectively. GPT-5.6-Sol achieves the highest final performance of 68.29%, albeit with greater API token consumption. From Round 3 to Round 5, it improves by 13.08%, com- pared with 6.15% and 4.17% for the other two back- bones, suggesting that stronger Meta-Agents may better leverage accumulated intervention feedback. These results demonstrate that RSIFlow supports different Meta-Agent backbones, while the Meta- Agent’s underlying capabilities influence the cumu- Round 1 Round 2 Round 3 Round 4 Round 5 Evolution round 0 20 40 60 80 100 HumanEval+ pass rate (%) 0 40 80 120 160 200 Meta tokens per round (M) Claude-Sonnet-5 DeepSeek-V4.1-Flash GPT-5.6-Sol Claude-Sonnet-5 DeepSeek-V4.1-F"
+            },
+            {
+              "text": "图同时显示每轮性能与元模型 token，用于理解效果和成本的权衡，不能只看最后分数。",
+              "kind": "interpretation",
+              "source_pages": [
+                7
+              ],
+              "quote": "Meta-agent backbone sensitivity. We evaluate RSIFlow with three Meta-Agent backbones over five evolution rounds on HumanEval+. As shown in Fig. 4, all three models achieve overall performance improvements, with gains of 11.48%, 5.09%, and 24.41% for Claude-Sonnet-5, DeepSeek-V4.1- Flash, and GPT-5.6-Sol, respectively. GPT-5.6-Sol achieves the highest final performance of 68.29%, albeit with greater API token consumption. From Round 3 to Round 5, it improves by 13.08%, com- pared with 6.15% and 4.17% for the other two back- bones, suggesting that stronger Meta-Agents may better leverage accumulated intervention feedback. These results demonstrate that RSIFlow supports different Meta-Agent backbones, while the Meta- Agent’s underlying capabilities influence the cumu- Round 1 Round 2 Round 3 Round 4 Round 5 Evolution round 0 20 40 60 80 100 HumanEval+ pass rate (%) 0 40 80 120 160 200 Meta tokens per round (M) Claude-Sonnet-5 DeepSeek-V4.1-Flash GPT-5.6-Sol Claude-Sonnet-5 DeepSeek-V4.1-F"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-4"
+            }
+          ]
+        },
+        {
+          "id": "meta-comparison",
+          "title": "表 3 · 元智能体自身是否进步？",
+          "items": [
+            {
+              "text": "让不同 Meta 版本改进同一个初始 Task-Agent，可减少任务模型进步带来的混淆。Meta0、Meta4 都选择 Harness，但 Code 从 48.30 升到 68.86，SearchQA 从 44.62 升到 54.13。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "Table 3: Domain-level performance of selected Meta candidates. Scores are macro-averages (%) across two benchmarks per domain. Component refers to the work- flow selected for orchestration by meta agent. Meta Component Code Tool Use SearchQA Vanilla 48.25 29.70 34.52 Meta0 HARNESS 48.30 30.40 44.62 Meta1 HARNESS 46.32 31.16 45.04 Meta2 MODEL 67.90 31.51 43.99 Meta3 ARTIFACTS 67.08 31.83 50.58 Meta4 HARNESS 68.86 30.84 54.13 4.5 Case Study Fig. 5 illustrates five rounds (R1–R5) of RSIFlow evolution, following a Harness–Harness–Model– Model–Artifacts sequence. In R1, the Meta-Agent addresses output-format violations with an output- contract check (H1), reaching 32.23%. R2 builds on H1 to introduce receipt-grounded verification (H2) for unsupported completions, raising the score to 38.04%. To address persistent semantic errors, R3 shifts to Model optimization with 3,798 replay calls for LoRA fine-tuning, reaching 45.46% and distilling the model-specific skill M1. R4 reuses and supplements"
+            },
+            {
+              "text": "Tool Use 最高的版本是选择 Artifacts 的 Meta3（31.83）；较晚元版本并非在所有领域、每一轮都最好。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "Meta Component Code Tool Use SearchQA Vanilla 48.25 29.70 34.52 Meta0 HARNESS 48.30 30.40 44.62 Meta1 HARNESS 46.32 31.16 45.04 Meta2 MODEL 67.90 31.51 43.99 Meta3 ARTIFACTS 67.08 31.83 50.58 Meta4 HARNESS 68.86 30.84 54.13 4.5 Case Study Fig. 5 illustrates five rounds (R1–R5) of RSIFlow evolution, following a Harness–Harness–Model– Model–Artifacts sequence. In R1, the Meta-Agent addresses output-format violations with an output- contract check (H1), reaching 32.23%. R2 builds on H1 to introduce receipt-grounded verification (H2) for unsupported completions, raising the score to 38.04%. To address persistent semantic errors, R3 shifts to Model optimization with 3,798 replay calls for LoRA fine-tuning, reaching 45.46% and distilling the model-specific skill M1. R4 reuses and supplements M1 with new evidence, expand- ing training to 5,397 calls and improving the score to 47.11%. In R5, execution feedback and accumu- lated repair guidance support code revision and re- submission within bu"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "table-3"
+            }
+          ]
+        },
+        {
+          "id": "case-workflow",
+          "title": "图 5a · 五轮更新目标如何变化？",
+          "items": [
+            {
+              "text": "示例顺序为 **Harness → Harness → Model → Model → Artifacts**：先修输出格式与完成凭据，再针对语义错误做 LoRA，最后根据执行反馈修代码。",
+              "kind": "paper",
+              "source_pages": [
+                8
+              ],
+              "quote": "Fig. 5 illustrates five rounds (R1–R5) of RSIFlow evolution, following a Harness–Harness–Model– Model–Artifacts sequence. In R1, the Meta-Agent addresses output-format violations with an output- contract check (H1), reaching 32.23%. R2 builds on H1 to introduce receipt-grounded verification (H2) for unsupported completions, raising the score to 38.04%. To address persistent semantic errors, R3 shifts to Model optimization with 3,798 replay calls for LoRA fine-tuning, reaching 45.46% and distilling the model-specific skill M1. R4 reuses and supplements M1 with new evidence, expand- ing training to 5,397 calls and improving the score to 47.11%. In R5, execution feedback and accumu- lated repair guidance support code revision and re- submission within budget, reaching 51.21% while preserving the Model and Harness. Across these rounds, skills and general principles progressively refine the Meta-Agent’s bottleneck diagnosis and subsequent workflow orchestration. This lineage demonstrates ho"
+            },
+            {
+              "text": "五轮报告分数依次为 32.23、38.04、45.46、47.11、51.21。这里说明一条演化谱系，不把它当成所有任务都遵循的固定顺序。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "In R1, the Meta-Agent addresses output-format violations with an output- contract check (H1), reaching 32.23%. R2 builds on H1 to introduce receipt-grounded verification (H2) for unsupported completions, raising the score to 38.04%. To address persistent semantic errors, R3 shifts to Model optimization with 3,798 replay calls for LoRA fine-tuning, reaching 45.46% and distilling the model-specific skill M1. R4 reuses and supplements M1 with new evidence, expand- ing training to 5,397 calls and improving the score to 47.11%. In R5, execution feedback and accumu- lated repair guidance support code revision and re- submission within budget, reaching 51.21% while preserving the Model and Harness. Across these rounds, skills and general principles progressively refine the Meta-Agent’s bottleneck diagnosis and subsequent workflow orchestration. This lineage demonstrates how adaptive workflow orchestration and Meta-Harness evolution reinforce each other, yielding an overall improvement of 18.9"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-5a"
+            }
+          ]
+        },
+        {
+          "id": "case-skills",
+          "title": "图 5b · 技能如何被复用与修订？",
+          "items": [
+            {
+              "text": "H1 的输出契约检查用于后续诊断；M1 的成功父代轨迹重放被复用并补充新证据；最终生成产物修复技能。记录中同时保存修复与退化，限制技能的适用范围。",
+              "kind": "interpretation",
+              "source_pages": [
+                8
+              ],
+              "quote": "HARNESS SKILLS H1 · Output-contract check · v1 WHEN: Source required; prose returned. GUIDANCE: Gate full-source instructions; bound format retries. PRESERVE: Model, Planning, Memory, tools, budget, scorer. EVIDENCE: R1 code: +31 repairs / −5 regressions. Reused in B2. MODEL SKILLS M1 · Verified-parent replay · v1 WHEN: Valid Harness; errors persist; successful traces available. GUIDANCE: Verify parent calls; filter data; run one-epoch LoRA. PRESERVE: Harness, Artifacts, budget, scorer, memory input. EVIDENCE: R3: +34 / −27. R4 supplements: +23 / −22. ARTIFACTS SKILLS A1 · Output repair · v1 WHEN: Repeated failures motivate Local defect; limited budget. GUIDANCE: Edit own output; retest and resubmit within budget. PRESERVE: Model, Harness, task contract, and evaluator. EVIDENCE: Repair outcomes, R5 ： +34 regressions, and revision cost. GENERAL PRINCIPLES P1 · Contract-grounded repair WHEN: Observed behavior violates the public task contract. GUIDANCE: Localize the violation before choo"
+            }
+          ],
+          "media_first": true,
+          "images": [
+            {
+              "asset_id": "fig-5b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "limitations",
+      "title": "局限",
+      "summary": {
+        "text": "收益尚未扩展验证到更大任务模型或集群规模；元层演化带来额外开销，其长期稳定性仍需研究。",
+        "kind": "paper",
+        "source_pages": [
+          9
+        ],
+        "quote": "Limitations RSIFlow is primarily evaluated using Qwen3-4B and Qwen3-8B as Task-Agent backbones. This set- ting is particularly relevant to resource-constrained agent deployments, where adaptive workflow or- chestration enables targeted modifications to identi- fied bottleneck components, while Meta-Agent evo- lution further improves bottleneck diagnosis and orchestration capabilities. However, whether these benefits remain significant with larger backbone models and at cluster scale remains unexplored. Future work will extend the evaluation to larger- scale settings to assess the scalability of RSIFlow. RSIFlow couples the Task-Agent and Meta- Agent, evolving the Meta-Harness through reusable skills and general principles to improve workflow orchestration without updating the Meta-Agent’s model parameters. However, this process intro- duces additional computational overhead, while adopting a lower-cost Meta-Agent may compro- mise evolution gains. Moreover, the stability of experience-d"
+      },
+      "sections": [
+        {
+          "id": "scale",
+          "title": "规模覆盖与成本",
+          "items": [
+            {
+              "text": "主实验仍是 Qwen3-4B、8B。更大模型或集群规模上的显著收益和可扩展性尚未验证。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "RSIFlow is primarily evaluated using Qwen3-4B and Qwen3-8B as Task-Agent backbones. This set- ting is particularly relevant to resource-constrained agent deployments, where adaptive workflow or- chestration enables targeted modifications to identi- fied bottleneck components, while Meta-Agent evo- lution further improves bottleneck diagnosis and orchestration capabilities. However, whether these benefits remain significant with larger backbone models and at cluster scale remains unexplored. Future work will extend the evaluation to larger- scale settings to assess the scalability of RSIFlow. RSIFlow couples the Task-Agent and Meta- Agent, evolving the Meta-Harness through reusable skills and general principles to improve workflow orchestration without updating the Meta-Agent’s model parameters. However, this process intro- duces additional computational overhead, while adopting a lower-cost Meta-Agent may compro- mise evolution gains. Moreover, the stability of experience-driven Meta-H"
+            },
+            {
+              "text": "更新 Meta-Harness 会增加计算开销，而换低成本元模型可能牺牲演化收益；经验驱动更新的稳定性也没有充分验证。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "RSIFlow couples the Task-Agent and Meta- Agent, evolving the Meta-Harness through reusable skills and general principles to improve workflow orchestration without updating the Meta-Agent’s model parameters. However, this process intro- duces additional computational overhead, while adopting a lower-cost Meta-Agent may compro- mise evolution gains. Moreover, the stability of experience-driven Meta-Harness updates remains to be fully investigated. Future work will explore counterfactual analysis to identify Meta-Agent de- ficiencies, apply targeted local modifications, and investigate Meta-Agent parameter optimization to improve evolution efficiency and stability. "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "future_work",
+      "title": "未来展望",
+      "summary": {
+        "text": "作者计划扩大规模，并用更精确的元层诊断和局部修改提高演化效率、稳定性。",
+        "kind": "paper",
+        "source_pages": [
+          9
+        ],
+        "quote": "Future work will extend the evaluation to larger- scale settings to assess the scalability of RSIFlow. RSIFlow couples the Task-Agent and Meta- Agent, evolving the Meta-Harness through reusable skills and general principles to improve workflow orchestration without updating the Meta-Agent’s model parameters. However, this process intro- duces additional computational overhead, while adopting a lower-cost Meta-Agent may compro- mise evolution gains. Moreover, the stability of experience-driven Meta-Harness updates remains to be fully investigated. Future work will explore counterfactual analysis to identify Meta-Agent de- ficiencies, apply targeted local modifications, and investigate Meta-Agent parameter optimization to improve evolution efficiency and stability. "
+      },
+      "sections": [
+        {
+          "id": "directions",
+          "title": "作者明确提出的方向",
+          "items": [
+            {
+              "text": "扩展到更大规模设置，检验 RSIFlow 的可扩展性。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "Future work will extend the evaluation to larger- scale settings to assess the scalability of RSIFlow. RSIFlow couples the Task-Agent and Meta- Agent, evolving the Meta-Harness through reusable skills and general principles to improve workflow orchestration without updating the Meta-Agent’s model parameters. However, this process intro- duces additional computational overhead, while adopting a lower-cost Meta-Agent may compro- mise evolution gains. Moreover, the stability of experience-driven Meta-Harness updates remains to be fully investigated. Future work will explore counterfactual analysis to identify Meta-Agent de- ficiencies, apply targeted local modifications, and investigate Meta-Agent parameter optimization to improve evolution efficiency and stability. "
+            },
+            {
+              "text": "通过反事实分析定位元智能体缺陷，开展针对性局部修改，并研究元模型参数优化。后者是未来方向，当前方法没有更新元模型权重。",
+              "kind": "paper",
+              "source_pages": [
+                9
+              ],
+              "quote": "Future work will explore counterfactual analysis to identify Meta-Agent de- ficiencies, apply targeted local modifications, and investigate Meta-Agent parameter optimization to improve evolution efficiency and stability. "
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
